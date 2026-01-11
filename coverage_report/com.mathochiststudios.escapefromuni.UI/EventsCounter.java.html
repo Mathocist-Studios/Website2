@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EventsCounter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.UI</a> &gt; <span class="el_source">EventsCounter.java</span></div><h1>EventsCounter.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.UI;
+
+<span class="fc" id="L3">public class EventsCounter {</span>
+
+<span class="fc" id="L5">    private int positiveEventsEncountered = 0;</span>
+<span class="fc" id="L6">    private int negativeEventsEncountered = 0;</span>
+<span class="fc" id="L7">    private int hiddenEventsEncountered = 0;</span>
+
+    // Event trackers
+<span class="fc" id="L10">    private boolean speedPositiveEventsEncountered = false;</span>
+<span class="fc" id="L11">    private boolean foundLibraryCard = false;</span>
+<span class="fc" id="L12">    private boolean foundBasementKey = false;</span>
+<span class="fc" id="L13">    private boolean handedInWallet = false;</span>
+<span class="fc" id="L14">    private boolean caughtByDean = false;</span>
+<span class="fc" id="L15">    private boolean buyRollerSkates = false;</span>
+<span class="fc" id="L16">    private boolean isSlowedByWater = false;</span>
+<span class="fc" id="L17">    private boolean foundFriend = false;</span>
+<span class="fc" id="L18">    private boolean boughtEnergyDrink = false;</span>
+<span class="fc" id="L19">    private boolean movedDucks = false;</span>
+<span class="fc" id="L20">    private boolean hasLongBoiPet = false;</span>
+
+    // Achievement trackers
+<span class="fc" id="L23">    private boolean hasExitLibraryAchieved = false;</span>
+<span class="fc" id="L24">    private boolean hasMadeItToBusStopAchieved = false;</span>
+<span class="fc" id="L25">    private boolean collectedAllCoinsAchieved = false;</span>
+<span class="fc" id="L26">    private boolean collectedAllPowerUpsAchieved = false;</span>
+<span class="fc" id="L27">    private boolean completedGameAchieved = false;</span>
+
+    public int getPositiveEventsEncountered() {
+<span class="fc" id="L30">        return positiveEventsEncountered;</span>
+    }
+
+    public int getNegativeEventsEncountered() {
+<span class="fc" id="L34">        return negativeEventsEncountered;</span>
+    }
+
+    public int getHiddenEventsEncountered() {
+<span class="fc" id="L38">        return hiddenEventsEncountered;</span>
+    }
+
+    public void speedPositiveEventsEncountered() {
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">        if (this.speedPositiveEventsEncountered) {</span>
+<span class="nc" id="L43">            return;</span>
+        }
+<span class="fc" id="L45">        this.positiveEventsEncountered += 1;</span>
+<span class="fc" id="L46">        this.speedPositiveEventsEncountered = true;</span>
+<span class="fc" id="L47">    }</span>
+
+    public void foundLibraryCard() {
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (this.foundLibraryCard) {</span>
+<span class="nc" id="L51">            return;</span>
+        }
+<span class="fc" id="L53">        this.negativeEventsEncountered += 1;</span>
+<span class="fc" id="L54">        this.foundLibraryCard = true;</span>
+<span class="fc" id="L55">    }</span>
+
+    public boolean hasFoundLibraryCard() {
+<span class="fc" id="L58">        return this.foundLibraryCard;</span>
+    }
+
+    public void foundBasementKey() {
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">        if (this.foundBasementKey) {</span>
+<span class="nc" id="L63">            return;</span>
+        }
+<span class="fc" id="L65">        this.negativeEventsEncountered += 1;</span>
+<span class="fc" id="L66">        this.foundBasementKey = true;</span>
+<span class="fc" id="L67">    }</span>
+
+    public boolean hasFoundBasementKey() {
+<span class="fc" id="L70">        return this.foundBasementKey;</span>
+    }
+
+    public void handedInWallet() {
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        if (this.handedInWallet) {</span>
+<span class="nc" id="L75">            return;</span>
+        }
+<span class="fc" id="L77">        this.hiddenEventsEncountered += 1;</span>
+<span class="fc" id="L78">        this.handedInWallet = true;</span>
+<span class="fc" id="L79">    }</span>
+
+    public boolean hasHandedInWallet() {
+<span class="fc" id="L82">        return this.handedInWallet;</span>
+    }
+
+    public void hasExitLibrary() {
+<span class="fc" id="L86">        this.hasExitLibraryAchieved = true;</span>
+<span class="fc" id="L87">    }</span>
+
+    public boolean getHasExitLibraryAchieved() {
+<span class="fc" id="L90">        return this.hasExitLibraryAchieved;</span>
+    }
+
+    public void caughtByDean() {
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        if (this.caughtByDean) {</span>
+<span class="nc" id="L95">            return;</span>
+        }
+<span class="fc" id="L97">        this.hiddenEventsEncountered += 1;</span>
+<span class="fc" id="L98">        this.caughtByDean = true;</span>
+<span class="fc" id="L99">    }</span>
+
+    public boolean getCaughtByDean() {
+<span class="fc" id="L102">        return this.caughtByDean;</span>
+    }
+
+    public void boughtRollerSkates() {
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        if (this.buyRollerSkates) {</span>
+<span class="fc" id="L107">            return;</span>
+        }
+<span class="fc" id="L109">        this.positiveEventsEncountered += 1;</span>
+<span class="fc" id="L110">        this.buyRollerSkates = true;</span>
+<span class="fc" id="L111">    }</span>
+
+    public boolean hasBoughtRollerSkates() {
+<span class="fc" id="L114">        return this.buyRollerSkates;</span>
+    }
+
+    public void slowedByWater() {
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        if (this.isSlowedByWater) {</span>
+<span class="fc" id="L119">            return;</span>
+        }
+<span class="fc" id="L121">        this.negativeEventsEncountered += 1;</span>
+<span class="fc" id="L122">        this.isSlowedByWater = true;</span>
+<span class="fc" id="L123">    }</span>
+
+    public boolean hasBeenSlowedByWater() {
+<span class="fc" id="L126">        return this.isSlowedByWater;</span>
+    }
+
+    public void foundFriend() {
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        if (this.foundFriend) {</span>
+<span class="fc" id="L131">            return;</span>
+        }
+<span class="fc" id="L133">        this.negativeEventsEncountered += 1;</span>
+<span class="fc" id="L134">        this.foundFriend = true;</span>
+<span class="fc" id="L135">    }</span>
+
+    public boolean hasFoundFriend() {
+<span class="fc" id="L138">        return this.foundFriend;</span>
+    }
+
+    public void boughtEnergyDrink() {
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        if (this.boughtEnergyDrink) {</span>
+<span class="fc" id="L143">            return;</span>
+        }
+<span class="fc" id="L145">        this.positiveEventsEncountered += 1;</span>
+<span class="fc" id="L146">        this.boughtEnergyDrink = true;</span>
+<span class="fc" id="L147">    }</span>
+
+    public boolean hasBoughtEnergyDrink() {
+<span class="fc" id="L150">        return this.boughtEnergyDrink;</span>
+    }
+
+    public void movedDucks() {
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        if (this.movedDucks) {</span>
+<span class="fc" id="L155">            return;</span>
+        }
+<span class="fc" id="L157">        this.negativeEventsEncountered += 1;</span>
+<span class="fc" id="L158">        this.movedDucks = true;</span>
+<span class="fc" id="L159">    }</span>
+
+    public boolean hasMovedDucks() {
+<span class="fc" id="L162">        return this.movedDucks;</span>
+    }
+
+    public void madeItToBusStop() {
+<span class="fc" id="L166">        this.hasMadeItToBusStopAchieved = true;</span>
+<span class="fc" id="L167">    }</span>
+
+    public boolean hasMadeItToBusStop() {
+<span class="fc" id="L170">        return this.hasMadeItToBusStopAchieved;</span>
+    }
+
+    public void collectedAllCoins() {
+<span class="fc" id="L174">        this.collectedAllCoinsAchieved = true;</span>
+<span class="fc" id="L175">    }</span>
+
+    public boolean hasCollectedAllCoins() {
+<span class="fc" id="L178">        return this.collectedAllCoinsAchieved;</span>
+    }
+
+    public void collectedAllPowerUps() {
+<span class="fc" id="L182">        this.collectedAllPowerUpsAchieved = true;</span>
+<span class="fc" id="L183">    }</span>
+
+    public boolean hasCollectedAllPowerUps() {
+<span class="fc" id="L186">        return this.collectedAllPowerUpsAchieved;</span>
+    }
+
+    public void completedGame() {
+<span class="fc" id="L190">        this.completedGameAchieved = true;</span>
+<span class="fc" id="L191">    }</span>
+
+    public boolean hasCompletedGame() {
+<span class="fc" id="L194">        return this.completedGameAchieved;</span>
+    }
+
+    public void hasLongBoiPet() {
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">        if (this.hasLongBoiPet) {</span>
+<span class="nc" id="L199">            return;</span>
+        }
+<span class="fc" id="L201">        this.hiddenEventsEncountered += 1;</span>
+<span class="fc" id="L202">        this.hasLongBoiPet = true;</span>
+<span class="fc" id="L203">    }</span>
+
+    public boolean getHasLongBoiPet() {
+<span class="fc" id="L206">        return this.hasLongBoiPet;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

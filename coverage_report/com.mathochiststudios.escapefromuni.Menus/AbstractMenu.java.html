@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractMenu.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.Menus</a> &gt; <span class="el_source">AbstractMenu.java</span></div><h1>AbstractMenu.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.Menus;
+
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.mathochiststudios.escapefromuni.Tests.ISpriteBatch;
+import com.mathochiststudios.escapefromuni.UI.Mouse;
+
+public abstract class AbstractMenu {
+
+    protected ISpriteBatch batch;
+    protected FitViewport viewport;
+
+<span class="fc" id="L12">    protected int latestScore = -1;</span>
+    protected boolean wonLastGame;
+    protected boolean buttonCD;
+
+    protected Mouse mouse;
+    protected MenuTextureManager textureManager;
+
+<span class="fc" id="L19">    protected String hoveredOver = &quot;Play&quot;;</span>
+
+<span class="fc" id="L21">    protected int textX = -100;</span>
+<span class="fc" id="L22">    protected int acceleration = 10;</span>
+
+    protected AbstractMenu(
+            ISpriteBatch batch,
+            FitViewport viewport,
+            boolean buttonCD,
+            Mouse mouse,
+            MenuTextureManager textureManager
+<span class="fc" id="L30">    ) {</span>
+<span class="fc" id="L31">        this.batch = batch;</span>
+<span class="fc" id="L32">        this.viewport = viewport;</span>
+<span class="fc" id="L33">        this.buttonCD = buttonCD;</span>
+<span class="fc" id="L34">        this.mouse = mouse;</span>
+<span class="fc" id="L35">        this.textureManager = textureManager;</span>
+<span class="fc" id="L36">    }</span>
+
+    /**
+     * Update shared menu state (useful when switching menus)
+     */
+    public void update(
+            ISpriteBatch batch,
+            FitViewport viewport,
+            int latestScore,
+            boolean wonLastGame,
+            boolean buttonCD,
+            Mouse mouse,
+            MenuTextureManager textureManager
+    ) {
+<span class="nc" id="L50">        this.batch = batch;</span>
+<span class="nc" id="L51">        this.viewport = viewport;</span>
+<span class="nc" id="L52">        this.latestScore = latestScore;</span>
+<span class="nc" id="L53">        this.wonLastGame = wonLastGame;</span>
+<span class="nc" id="L54">        this.buttonCD = buttonCD;</span>
+<span class="nc" id="L55">        this.mouse = mouse;</span>
+<span class="nc" id="L56">        this.textureManager = textureManager;</span>
+<span class="nc" id="L57">    }</span>
+
+    /**
+     * Handle input for the menu.
+     * @return a state change string (e.g. &quot;Main&quot;, &quot;Settings&quot;, &quot;Start Game&quot;)
+     */
+    public abstract String input();
+
+    /**
+     * Draw the menu contents.
+     */
+    public abstract void draw();
+
+    public abstract void resetText();
+    {
+<span class="fc" id="L72">        this.textX = 0;</span>
+<span class="fc" id="L73">        this.acceleration = 10;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

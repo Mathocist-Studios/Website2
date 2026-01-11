@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LibraryDoor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.levels.LevelDoors</a> &gt; <span class="el_source">LibraryDoor.java</span></div><h1>LibraryDoor.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.levels.LevelDoors;
+
+import com.mathochiststudios.escapefromuni.UI.NotificationSystem.Notification;
+import com.mathochiststudios.escapefromuni.UI.NotificationSystem.NotificationType;
+import com.mathochiststudios.escapefromuni.UI.QuestSystem.Quests.EscapeLibraryQuest;
+import com.mathochiststudios.escapefromuni.entities.Player;
+import com.badlogic.gdx.math.Rectangle;
+import com.mathochiststudios.escapefromuni.entities.PlayerInventory.InventoryObject;
+import com.mathochiststudios.escapefromuni.levels.Level;
+
+/**
+ * Represents the library door that blocks the player's exit until they have the required items.
+ */
+public class LibraryDoor {
+
+    // Instantiate rectangle to cover desired section of map to block.
+    private final Rectangle rectangle;
+
+<span class="fc" id="L19">    private double timeSinceLastNotification = 0.0;</span>
+
+<span class="fc" id="L21">    public LibraryDoor() {</span>
+        // instantiate rectangle to block path.
+<span class="fc" id="L23">        this.rectangle = new Rectangle(3, 3, 3, 1);</span>
+<span class="fc" id="L24">    }</span>
+
+    // Checks for collision between player and door.
+    public boolean collides(Player player) {
+<span class="fc" id="L28">        return rectangle.overlaps(player.getMoneyRectangle());</span>
+    }
+
+    // Disallows the collision between player and wall.
+    public void disallowCollision(Player player) {
+<span class="nc" id="L33">        player.getMoneySprite().setX(player.getOldMoneyX());</span>
+<span class="nc" id="L34">        player.getMoneySprite().setY(player.getOldMoneyY());</span>
+<span class="nc" id="L35">    }</span>
+
+    // Invoked every frame, allows player to pass if hasLibraryCard, else collision is active.
+    public void update(Player player, Level level) {
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        if (!this.collides(player)) {</span>
+<span class="fc" id="L40">            return;</span>
+        }
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">        if (!player.getInventory().hasItem(InventoryObject.KEYCARD)) {</span>
+<span class="nc" id="L43">            this.disallowCollision(player);</span>
+
+<span class="nc bnc" id="L45" title="All 2 branches missed.">            if (System.currentTimeMillis() - timeSinceLastNotification &lt; 5000) {</span>
+<span class="nc" id="L46">                return;</span>
+            }
+
+<span class="nc" id="L49">            timeSinceLastNotification = System.currentTimeMillis();</span>
+
+<span class="nc" id="L51">            Notification notification = new Notification(</span>
+                &quot;You need your library card to exit!&quot;,
+                5f,
+                NotificationType.SPEECH,
+<span class="nc" id="L55">                level.getGame().getTextureManager().getGameSmallFont()</span>
+            );
+<span class="nc" id="L57">            level.getGame().getHud().getNotificationManager().addNotification(notification);</span>
+<span class="nc" id="L58">            level.getGame().getHud().getQuestSystem().addMainQuest(</span>
+                new EscapeLibraryQuest()
+            );
+<span class="nc" id="L61">            return;</span>
+        }
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if (!player.getInventory().hasItem(InventoryObject.RUCKSACK)) {</span>
+<span class="nc" id="L64">            this.disallowCollision(player);</span>
+
+<span class="nc bnc" id="L66" title="All 2 branches missed.">            if (System.currentTimeMillis() - timeSinceLastNotification &lt; 5000) {</span>
+<span class="nc" id="L67">                return;</span>
+            }
+
+<span class="nc" id="L70">            timeSinceLastNotification = System.currentTimeMillis();</span>
+
+
+<span class="nc" id="L73">            Notification notification = new Notification(</span>
+                &quot;You need your rucksack to carry your things!&quot;,
+                5f,
+                NotificationType.SPEECH,
+<span class="nc" id="L77">                level.getGame().getTextureManager().getGameSmallFont()</span>
+            );
+<span class="nc" id="L79">            level.getGame().getHud().getNotificationManager().addNotification(notification);</span>
+<span class="nc" id="L80">            level.getGame().getHud().getQuestSystem().addMainQuest(</span>
+                new EscapeLibraryQuest()
+            );
+<span class="nc" id="L83">            return;</span>
+        }
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (player.getInventory().hasItem(InventoryObject.KEYCARD) &amp;&amp;</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">            player.getInventory().hasItem(InventoryObject.RUCKSACK) &amp;&amp;</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">            !player.getEventsCounter().getHasExitLibraryAchieved()) {</span>
+<span class="fc" id="L88">            Notification notification = new Notification(</span>
+                &quot;Exited the library&quot;,
+                5f,
+                NotificationType.ACHIEVEMENT,
+<span class="fc" id="L92">                level.getGame().getTextureManager().getGameSmallFont()</span>
+            );
+<span class="fc" id="L94">            level.getGame().getHud().getNotificationManager().addNotification(notification);</span>
+<span class="fc" id="L95">            player.getEventsCounter().hasExitLibrary();</span>
+        }
+<span class="fc" id="L97">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

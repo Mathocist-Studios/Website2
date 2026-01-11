@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InteractableEntity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.entities.InteractableEntity</a> &gt; <span class="el_source">InteractableEntity.java</span></div><h1>InteractableEntity.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.entities.InteractableEntity;
+
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+import com.mathochiststudios.escapefromuni.Game;
+import com.mathochiststudios.escapefromuni.entities.Player;
+import com.mathochiststudios.escapefromuni.levels.Level;
+
+/**
+ * Abstract class representing an interactable entity in the game.
+ * &lt;br&gt;
+ * Originally created to represent vending machines, but expanded to include other interactable entities.
+ * &lt;br&gt;&lt;br&gt;
+ * Since the previous developers created such specific classes for specific use-cases, Towards the end of development
+ * I ended up using this class as a general static entity class for anything that the
+ * player can interact with. (e.g. Shops, Bird Seed, etc.)
+ * &lt;br&gt;
+ * Update: Not even static anymore this is a general entity class now I suppose. (added longboi pet and bus)
+ */
+public abstract class InteractableEntity {
+
+    private final Texture texture;
+    private float entityX;
+    private float entityY;
+    private final float entityWidth;
+    private final float entityHeight;
+    private final float interactionRadius;
+    private final Rectangle entityCollision;
+    private final Sprite entitySprite;
+    private final boolean isAbovePlayer;
+
+    protected Game game;
+
+<span class="fc" id="L36">    public InteractableEntity(Game game, Texture texture, float x, float y, float width, float height, float interactionRadius, boolean isAbovePlayer) {</span>
+
+<span class="fc" id="L38">        this.game = game;</span>
+
+<span class="fc" id="L40">        this.entityX = x;</span>
+<span class="fc" id="L41">        this.texture = texture;</span>
+<span class="fc" id="L42">        this.entityY = y;</span>
+<span class="fc" id="L43">        this.entityWidth = width;</span>
+<span class="fc" id="L44">        this.entityHeight = height;</span>
+<span class="fc" id="L45">        this.interactionRadius = interactionRadius;</span>
+<span class="fc" id="L46">        this.isAbovePlayer = isAbovePlayer;</span>
+<span class="fc" id="L47">        this.entityCollision = new Rectangle(entityX, entityY, entityWidth, entityHeight);</span>
+
+<span class="fc" id="L49">        this.entitySprite = new Sprite(texture);</span>
+
+<span class="fc" id="L51">    }</span>
+
+    public abstract void update(float deltaTime, Level level);
+
+    public abstract void onInteract(Player p, Level level);
+
+    public abstract void withinInteractionRadius(Player p, Level level, SpriteBatch batch);
+
+    public abstract void render(SpriteBatch batch);
+
+    public Texture getTexture() {
+<span class="nc" id="L62">        return texture;</span>
+    }
+
+    public float getEntityX() {
+<span class="fc" id="L66">        return entityX;</span>
+    }
+
+    public float getEntityY() {
+<span class="fc" id="L70">        return entityY;</span>
+    }
+
+    public float getEntityWidth() {
+<span class="fc" id="L74">        return entityWidth;</span>
+    }
+
+    public float getInteractionRadius() {
+<span class="fc" id="L78">        return interactionRadius;</span>
+    }
+
+    public float getEntityHeight() {
+<span class="fc" id="L82">        return entityHeight;</span>
+    }
+
+    public Rectangle getEntityCollision() {
+<span class="nc" id="L86">        return entityCollision;</span>
+    }
+
+    public Game getGame() {
+<span class="fc" id="L90">        return game;</span>
+    }
+
+    public Sprite getEntitySprite() {
+<span class="nc" id="L94">        return entitySprite;</span>
+    }
+
+    public boolean isAbovePlayer() {
+<span class="nc" id="L98">        return isAbovePlayer;</span>
+    }
+
+    public void setEntityX(float x) {
+<span class="fc" id="L102">        this.entityX = x;</span>
+<span class="fc" id="L103">        this.entityCollision.setX(x);</span>
+<span class="fc" id="L104">    }</span>
+
+    public void setEntityY(float y) {
+<span class="fc" id="L107">        this.entityY = y;</span>
+<span class="fc" id="L108">        this.entityCollision.setY(y);</span>
+<span class="fc" id="L109">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

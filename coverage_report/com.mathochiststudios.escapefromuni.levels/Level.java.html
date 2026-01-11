@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Level.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.levels</a> &gt; <span class="el_source">Level.java</span></div><h1>Level.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.levels;
+
+import java.util.ArrayList;
+
+import com.mathochiststudios.escapefromuni.entities.InteractableEntity.InteractableEntity;
+import com.mathochiststudios.escapefromuni.entities.Player;
+import com.mathochiststudios.escapefromuni.powerups.SpeedPowerup;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Rectangle;
+import com.mathochiststudios.escapefromuni.collectibles.Collectible;
+import com.mathochiststudios.escapefromuni.entities.Enemy.Enemy;
+
+import com.mathochiststudios.escapefromuni.Game;
+
+public abstract class Level {
+
+    protected ArrayList&lt;Collectible&gt; levelCoins;
+    protected ArrayList&lt;SpeedPowerup&gt; levelSpeedPowerups;
+    protected ArrayList&lt;Enemy&gt; levelEnemies;
+    protected ArrayList&lt;InteractableEntity&gt; levelInteractableEntities;
+
+<span class="fc" id="L24">    protected int startX = -1;</span>
+<span class="fc" id="L25">    protected int startY = -1;</span>
+
+<span class="fc" id="L27">    protected int sideX = -1;</span>
+<span class="fc" id="L28">    protected int sideY = -1;</span>
+
+    // endX and endY are used to spawn the player when they are backtracking, i.e moving back to the previous room
+<span class="fc" id="L31">    protected int endX = -1;</span>
+<span class="fc" id="L32">    protected int endY = -1;</span>
+
+<span class="fc" id="L34">    protected int side2X = -1;</span>
+<span class="fc" id="L35">    protected int side2Y = -1;</span>
+
+    protected String mapName;
+
+<span class="fc" id="L39">    protected Level nextLevel = null;</span>
+<span class="fc" id="L40">    protected Level sideLevel = null;</span>
+<span class="fc" id="L41">    protected Level side2Level = null;</span>
+<span class="fc" id="L42">    protected Level prevLevel = null;</span>
+
+    protected Sprite minimapIcon;
+
+    private final Game game;
+
+<span class="fc" id="L48">    public Level(Game game) {</span>
+<span class="fc" id="L49">        this.game = game;</span>
+<span class="fc" id="L50">    }</span>
+
+    public String getMapName() {
+<span class="fc" id="L53">        return mapName;</span>
+    }
+
+    // To be invoked in Game, in the logic method.
+    // This will update the entities on the level.
+    public abstract void update(float deltaTime, Player player);
+
+    // To be invoked in Game, in the draw method.
+    // This will re-draw the entities on the level in their updated positions.
+    public abstract void draw(SpriteBatch batch);
+
+    // To be invoked in Game, in the logic method.
+    // This will check collision logic between player and entities on the level.
+    // Can have general use, i.e. can be expanded to collectibles.
+    public abstract boolean collides(Player player);
+
+    public int getStartX() {
+<span class="fc" id="L70">        return startX;</span>
+    }
+    public int getStartY() {
+<span class="fc" id="L73">        return startY;</span>
+    }
+
+    public int getSideX() {
+<span class="fc" id="L77">        return sideX;</span>
+    }
+    public int getSideY() {
+<span class="fc" id="L80">        return sideY;</span>
+    }
+
+    public int getSide2X() {
+<span class="fc" id="L84">        return side2X;</span>
+    }
+    public int getSide2Y() {
+<span class="fc" id="L87">        return side2Y;</span>
+    }
+
+    public int getEndX() {
+<span class="nc" id="L91">        return endX;</span>
+    }
+    public int getEndY() {
+<span class="nc" id="L94">        return endY;</span>
+    }
+
+    public Level getNextLevel() {
+<span class="nc" id="L98">        return nextLevel;</span>
+    }
+    public void setNextLevel(Level nextLevel) {
+<span class="fc" id="L101">        this.nextLevel = nextLevel;</span>
+<span class="fc" id="L102">    }</span>
+
+    public Level getSideLevel() {
+<span class="fc" id="L105">        return sideLevel;</span>
+    }
+    public void setSideLevel(Level sideLevel) {
+<span class="fc" id="L108">        this.sideLevel = sideLevel;</span>
+<span class="fc" id="L109">    }</span>
+
+    public Level getSide2Level() {
+<span class="fc" id="L112">        return side2Level;</span>
+    }
+    public void setSide2Level(Level side2Level) {
+<span class="fc" id="L115">        this.side2Level = side2Level;</span>
+<span class="fc" id="L116">    }</span>
+
+    public Level getPrevLevel() {
+<span class="fc" id="L119">        return prevLevel;</span>
+    }
+    public void setPrevLevel(Level prevLevel) {
+<span class="fc" id="L122">        this.prevLevel = prevLevel;</span>
+<span class="fc" id="L123">    }</span>
+
+    public Sprite getMinimapSprite() {
+<span class="fc" id="L126">        return minimapIcon;</span>
+    }
+    public void setMinimapSprite(Sprite newSprite) {
+<span class="fc" id="L129">        this.minimapIcon = newSprite;</span>
+<span class="fc" id="L130">    }</span>
+
+    public ArrayList&lt;Collectible&gt; getLevelCoins() {
+<span class="fc" id="L133">        return levelCoins;</span>
+    }
+    public ArrayList&lt;SpeedPowerup&gt; getLevelPowerups() {
+<span class="fc" id="L136">        return levelSpeedPowerups;</span>
+    }
+    public ArrayList&lt;Enemy&gt; getLevelEnemies() {
+<span class="fc" id="L139">        return levelEnemies;</span>
+    }
+    public ArrayList&lt;InteractableEntity&gt; getLevelInteractableEntities() {
+<span class="fc" id="L142">        return levelInteractableEntities;</span>
+    }
+
+    // replaced to just make it better...
+    public ArrayList&lt;Collectible&gt; generateLevelCoins(int[][] coinCoordinates) {
+<span class="pc bpc" id="L147" title="2 of 4 branches missed.">        if (coinCoordinates == null || coinCoordinates.length == 0) {</span>
+<span class="nc" id="L148">            return new ArrayList&lt;&gt;();</span>
+        }
+<span class="pc bpc" id="L150" title="2 of 4 branches missed.">        if (game == null || game.getTextureManager() == null) {</span>
+<span class="nc" id="L151">            throw new IllegalStateException(&quot;Game or TextureManager is not initialized&quot;);</span>
+        }
+
+<span class="fc" id="L154">        ArrayList&lt;Collectible&gt; newCoinList = new ArrayList&lt;&gt;(coinCoordinates.length);</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">        for (int i = 0; i &lt; coinCoordinates.length; i++) {</span>
+<span class="fc" id="L156">            int[] pair = coinCoordinates[i];</span>
+<span class="pc bpc" id="L157" title="2 of 4 branches missed.">            if (pair == null || pair.length != 2) {</span>
+<span class="nc" id="L158">                throw new IllegalArgumentException(&quot;Each coordinate entry must be an int[2] pair; invalid at index &quot; + i);</span>
+            }
+<span class="fc" id="L160">            int x = pair[0];</span>
+<span class="fc" id="L161">            int y = pair[1];</span>
+<span class="fc" id="L162">            newCoinList.add(new Collectible(</span>
+<span class="fc" id="L163">                game.getTextureManager().getCoinTexture(),</span>
+<span class="fc" id="L164">                game.getTextureManager().getCoinSound(),</span>
+                x, y
+            ));
+        }
+<span class="fc" id="L168">        return newCoinList;</span>
+    }
+
+    /**
+     * Optional lifecycle hook invoked when the game switches to this level.
+     * Provides the collision layer and collision rectangles for the level so
+     * implementations can query map data (for example, to place collectibles).
+     * Default implementation does nothing.
+     */
+    public abstract void onEnter(TiledMapTileLayer mapCollisionLayer, ArrayList&lt;Rectangle&gt; mapCollisions, Player p);
+
+    public Game getGame() {
+<span class="fc" id="L180">        return this.game;</span>
+    }
+
+    public void addSpeedPowerup(SpeedPowerup sp) {
+<span class="fc" id="L184">        this.levelSpeedPowerups.add(sp);</span>
+<span class="fc" id="L185">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PauseMenu.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.Menus</a> &gt; <span class="el_source">PauseMenu.java</span></div><h1>PauseMenu.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.Menus;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.mathochiststudios.escapefromuni.Tests.ISpriteBatch;
+import com.mathochiststudios.escapefromuni.UI.Mouse;
+
+public class PauseMenu extends AbstractMenu{
+
+    public PauseMenu(
+            ISpriteBatch batch,
+            FitViewport viewport,
+            boolean buttonCD,
+            Mouse mouse,
+            MenuTextureManager textureManager
+    ) {
+<span class="fc" id="L18">        super(batch, viewport, buttonCD, mouse, textureManager);</span>
+<span class="fc" id="L19">    }</span>
+
+    @Override
+    public void resetText() {
+<span class="nc" id="L23">        this.textX = -400;</span>
+<span class="nc" id="L24">        this.acceleration = 40;</span>
+<span class="nc" id="L25">    }</span>
+
+
+    @Override
+    public String input() {
+<span class="nc" id="L30">        mouse.update(viewport);</span>
+<span class="nc bnc" id="L31" title="All 2 branches missed.">        if (Gdx.input.isTouched()) {</span>
+<span class="nc" id="L32">            mouse.update(viewport);</span>
+
+<span class="nc bnc" id="L34" title="All 2 branches missed.">            if (!buttonCD) {</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">                if (textureManager.getResumeButtonSprite().getBoundingRectangle().contains(new Vector2(mouse.getX(), mouse.getY()))) {</span>
+<span class="nc" id="L36">                    return &quot;Resume&quot;;</span>
+
+<span class="nc bnc" id="L38" title="All 2 branches missed.">                } else if (textureManager.getReturnToMenuButtonSprite().getBoundingRectangle().contains(new Vector2(mouse.getX(), mouse.getY()))) {</span>
+<span class="nc" id="L39">                    buttonCD = true;</span>
+<span class="nc" id="L40">                    return &quot;Main&quot;;</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">                } else if (textureManager.getRestartSprite().getBoundingRectangle().contains(new Vector2(mouse.getX(), mouse.getY()))) {</span>
+<span class="nc" id="L42">                    buttonCD = true;</span>
+<span class="nc" id="L43">                    return &quot;Restart&quot;;</span>
+                }
+            }
+        }
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (!buttonCD) {</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">                if (textureManager.getResumeButtonSprite().getBoundingRectangle().contains(new Vector2(mouse.getX(), mouse.getY()))) {</span>
+<span class="nc" id="L49">                    hoveredOver = &quot;Resume&quot;;</span>
+
+<span class="nc bnc" id="L51" title="All 2 branches missed.">                } else if (textureManager.getReturnToMenuButtonSprite().getBoundingRectangle().contains(new Vector2(mouse.getX(), mouse.getY()))) {</span>
+<span class="nc" id="L52">                    hoveredOver = &quot;ReturnToMenu&quot;;</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">                } else if (textureManager.getRestartSprite().getBoundingRectangle().contains(new Vector2(mouse.getX(), mouse.getY()))) {</span>
+<span class="nc" id="L54">                    hoveredOver = &quot;Restart&quot;;</span>
+                }
+            }
+<span class="nc" id="L57">        return &quot;Pause&quot;;</span>
+    }
+
+    @Override
+    public void draw() {
+        //ScreenUtils.clear(Color.CLEAR);
+
+<span class="nc" id="L64">        textX=textX+acceleration;</span>
+<span class="nc" id="L65">        acceleration=acceleration-1;</span>
+
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (acceleration&lt;0) {</span>
+<span class="nc" id="L68">            acceleration=0;</span>
+        }
+
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (textX&gt;290) {</span>
+<span class="nc" id="L72">            textX=290;</span>
+        }
+
+<span class="nc" id="L75">        viewport.apply();</span>
+<span class="nc" id="L76">        batch.setProjectionMatrix(viewport.getCamera().combined);</span>
+<span class="nc" id="L77">        batch.begin();</span>
+
+<span class="nc" id="L79">        batch.draw(textureManager.getOverlayTexture(),0,0, 1280, 960);</span>
+<span class="nc" id="L80">        batch.draw(textureManager.getPausedText(),240,660, 800, 200);</span>
+
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (hoveredOver.equals(&quot;Resume&quot;)){</span>
+<span class="nc" id="L83">            batch.draw(textureManager.hovergetResumeButtonTexture(),textX,500, 300, 100);</span>
+        } else {
+<span class="nc" id="L85">            batch.draw(textureManager.getResumeButtonSprite(),textX,500, 300, 100);</span>
+        }
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (hoveredOver.equals(&quot;Restart&quot;)){</span>
+<span class="nc" id="L88">            batch.draw(textureManager.gethoverRestartTexture(),textX,300, 300, 100);</span>
+        } else {
+<span class="nc" id="L90">            batch.draw(textureManager.getRestartSprite(),textX,300, 300, 100);</span>
+        }
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (hoveredOver.equals(&quot;ReturnToMenu&quot;)){</span>
+<span class="nc" id="L93">            batch.draw(textureManager.gethoverReturnToMenuButtonTexture(),textX,100, 300, 100);</span>
+        } else {
+<span class="nc" id="L95">            batch.draw(textureManager.getReturnToMenuButtonSprite(),textX,100, 300, 100);</span>
+        }
+
+<span class="nc" id="L98">        batch.end();</span>
+<span class="nc" id="L99">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

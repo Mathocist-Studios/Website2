@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DuckBlockerP2.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.levels.LevelDoors</a> &gt; <span class="el_source">DuckBlockerP2.java</span></div><h1>DuckBlockerP2.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.levels.LevelDoors;
+
+import com.badlogic.gdx.math.Rectangle;
+import com.mathochiststudios.escapefromuni.UI.NotificationSystem.Notification;
+import com.mathochiststudios.escapefromuni.UI.NotificationSystem.NotificationType;
+import com.mathochiststudios.escapefromuni.UI.QuestSystem.Quests.BuyBirdSeedSideQuest;
+import com.mathochiststudios.escapefromuni.entities.InteractableEntity.BirdSeed;
+import com.mathochiststudios.escapefromuni.entities.Player;
+import com.mathochiststudios.escapefromuni.levels.Level;
+
+/**
+ * DuckBlockerP2 class represents a barrier in the game level that blocks the player's path
+ * until they acquire birdseed to distract the ducks.
+ */
+public class DuckBlockerP2 {
+
+    // Instantiate rectangle to cover desired section of map to block.
+    private final Rectangle rectangle;
+    private BirdSeed birdSeed;
+
+<span class="fc" id="L21">    public DuckBlockerP2(BirdSeed birdSeed) {</span>
+
+<span class="fc" id="L23">        this.birdSeed = birdSeed;</span>
+
+        // instantiate rectangle to block path.
+<span class="fc" id="L26">        this.rectangle = new Rectangle(27, 25, 1, 10);</span>
+<span class="fc" id="L27">    }</span>
+
+    // Checks for collision between player and door.
+    public boolean collides(Player player) {
+<span class="fc" id="L31">        return rectangle.overlaps(player.getMoneyRectangle());</span>
+    }
+
+    // Disallows the collision between player and wall.
+    public void disallowCollision(Player player) {
+<span class="nc" id="L36">        player.getMoneySprite().setX(player.getOldMoneyX());</span>
+<span class="nc" id="L37">        player.getMoneySprite().setY(player.getOldMoneyY());</span>
+<span class="nc" id="L38">    }</span>
+
+    // Invoked every frame, allows player to pass if hasLibraryCard, else collision is active.
+    public void update(Player player, Level level) {
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">        if (!this.collides(player)) {</span>
+<span class="fc" id="L43">            return;</span>
+        }
+<span class="nc bnc" id="L45" title="All 2 branches missed.">        if (birdSeed == null) {</span>
+<span class="nc" id="L46">            this.disallowCollision(player);</span>
+
+<span class="nc bnc" id="L48" title="All 2 branches missed.">            if (System.currentTimeMillis() - DuckBlockerP1.timeSinceLastNotification &lt; 5000) {</span>
+<span class="nc" id="L49">                return;</span>
+            }
+
+<span class="nc" id="L52">            DuckBlockerP1.timeSinceLastNotification = System.currentTimeMillis();</span>
+
+<span class="nc" id="L54">            Notification notification = new Notification(</span>
+                &quot;Ugh ducks! I need to put down some birdseed to get past them.&quot;,
+                5f,
+                NotificationType.SPEECH,
+<span class="nc" id="L58">                level.getGame().getTextureManager().getGameSmallFont()</span>
+            );
+<span class="nc" id="L60">            level.getGame().getHud().getNotificationManager().addNotification(notification);</span>
+<span class="nc" id="L61">            level.getGame().getHud().getQuestSystem().addSideQuest(</span>
+                new BuyBirdSeedSideQuest()
+            );
+        }
+
+<span class="nc" id="L66">    }</span>
+
+    public void setBirdSeed(BirdSeed birdSeed) {
+<span class="fc" id="L69">        this.birdSeed = birdSeed;</span>
+<span class="fc" id="L70">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CreditsMenu.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.Menus</a> &gt; <span class="el_source">CreditsMenu.java</span></div><h1>CreditsMenu.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.Menus;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.mathochiststudios.escapefromuni.Tests.ISpriteBatch;
+import com.mathochiststudios.escapefromuni.UI.Mouse;
+
+public class CreditsMenu extends AbstractMenuLegacy {
+
+    // Parallax background variables
+    private static final float SCROLL_SPEED = 60f;
+<span class="fc" id="L19">    private float parallaxOffset = 0f;</span>
+    private final Texture backgroundLayer1;
+    private final Texture backgroundLayer2;
+    private final Texture backgroundLayer3;
+    private final Texture backgroundLayer4;
+
+    // Animation variables
+    private final Animation&lt;TextureRegion&gt; walkAnimation;
+    private TextureRegion[] walkFrames;
+<span class="fc" id="L28">    private float stateTime = 0f;</span>
+    private final Sprite sprite;
+
+    // Credits variables
+<span class="fc" id="L32">    private float creditsOffset = 0f;</span>
+    private static final float CREDITS_SCROLL_SPEED = 50f;
+<span class="fc" id="L34">    private static final String[][] creditsLines = {</span>
+        {&quot;big&quot;, &quot;Developed by Mathochist Studios&quot;},
+        {&quot;big&quot;, &quot;Developers:&quot;},
+        {&quot;small&quot;, &quot; - Aiden Turner&quot;},
+        {&quot;small&quot;, &quot; - Marcus Williamson&quot;},
+        {&quot;big&quot;, &quot;Requirements Analysis and Design:&quot;},
+        {&quot;small&quot;, &quot; - Charlie Thoo-tinsley&quot;},
+        {&quot;big&quot;, &quot;Risk assessment and Testing:&quot;},
+        {&quot;small&quot;, &quot; - Harri Thorman&quot;},
+        {&quot;big&quot;, &quot;User Testing:&quot;},
+        {&quot;small&quot;, &quot; - Will King&quot;},
+        {&quot;big&quot;, &quot;Method Selection and Project Management:&quot;},
+        {&quot;small&quot;, &quot; - Josh Zacek&quot;},
+        {&quot;small&quot;, &quot; - Euan Cottam&quot;},
+        {&quot;big&quot;, &quot;Special Thanks to Team 9 for their initial work on the project!&quot;},
+        {&quot;big&quot;, &quot;Thank you for playing Escape From Uni!&quot;}
+    };
+
+<span class="fc" id="L52">    private String nextMenu = &quot;Credits&quot;;</span>
+<span class="fc" id="L53">    private double buttonCooldown = 0;</span>
+
+    public CreditsMenu(ISpriteBatch batch, FitViewport viewport, int latestScore, boolean wonLastGame, boolean buttonCD, Mouse mouse, MenuTextureManager textureManager) {
+<span class="fc" id="L56">        super(batch, viewport, latestScore, wonLastGame, buttonCD, mouse, textureManager);</span>
+
+<span class="fc" id="L58">        backgroundLayer1 = new Texture(&quot;road_parallax_layer_1.png&quot;);</span>
+<span class="fc" id="L59">        backgroundLayer2 = new Texture(&quot;road_parallax_layer_2.png&quot;);</span>
+<span class="fc" id="L60">        backgroundLayer3 = new Texture(&quot;road_parallax_layer_3.png&quot;);</span>
+<span class="fc" id="L61">        backgroundLayer4 = new Texture(&quot;road_parallax_layer_4.png&quot;);</span>
+
+<span class="fc" id="L63">        this.sprite = new Sprite(new Texture(&quot;yellow_bus_driving.png&quot;));</span>
+
+<span class="fc" id="L65">        this.populateFrames();</span>
+<span class="fc" id="L66">        this.walkAnimation = new Animation&lt;&gt;(0.05f, this.walkFrames);</span>
+<span class="fc" id="L67">    }</span>
+
+    public void update(ISpriteBatch batch, FitViewport viewport, int latestScore, boolean wonLastGame, boolean buttonCD, Mouse mouse, MenuTextureManager textureManager) {
+<span class="nc" id="L70">        this.batch = batch;</span>
+<span class="nc" id="L71">        this.viewport = viewport;</span>
+<span class="nc" id="L72">        this.latestScore = latestScore;</span>
+<span class="nc" id="L73">        this.wonLastGame = wonLastGame;</span>
+<span class="nc" id="L74">        this.buttonCD = buttonCD;</span>
+<span class="nc" id="L75">        this.mouse = mouse;</span>
+<span class="nc" id="L76">        this.textureManager = textureManager;</span>
+<span class="nc" id="L77">    }</span>
+
+    @Override
+    public String input() {
+<span class="nc" id="L81">        return this.nextMenu;</span>
+    }
+
+    /**
+     * Computes a positive modulo, ensuring the result is always non-negative.
+     * &lt;br&gt;
+     * Primarily used for wrapping offsets in parallax scrolling.
+     *
+     * @param value   The value to be wrapped.
+     * @param modulus The modulus to wrap against.
+     * @return A non-negative result of value mod modulus.
+     */
+    private static float positiveMod(float value, float modulus) {
+<span class="nc" id="L94">        float m = value % modulus;</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        return m &lt; 0 ? m + modulus : m;</span>
+    }
+
+    private void drawParallaxBackground() {
+<span class="nc" id="L99">        float width = viewport.getWorldWidth();</span>
+<span class="nc" id="L100">        float height = viewport.getWorldHeight();</span>
+
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (width &lt;= 0f) return; // guard against divide-by-zero / invalid viewport</span>
+
+        // accumulate offset (no modulo here)
+<span class="nc" id="L105">        parallaxOffset += Gdx.graphics.getDeltaTime() * SCROLL_SPEED;</span>
+        // optionally clamp to avoid huge values accumulating over very long runs
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (parallaxOffset &gt; 1e6f) parallaxOffset -= 1e6f;</span>
+
+        // compute per-layer offsets from the running offset and wrap per-layer
+<span class="nc" id="L110">        float o4 = positiveMod(parallaxOffset * 0.2f, width);</span>
+<span class="nc" id="L111">        float o3 = positiveMod(parallaxOffset * 0.4f, width);</span>
+<span class="nc" id="L112">        float o2 = positiveMod(parallaxOffset * 0.4f, width);</span>
+
+<span class="nc" id="L114">        batch.draw(backgroundLayer4, -o4, 0, width, height);</span>
+<span class="nc" id="L115">        batch.draw(backgroundLayer4, -o4 + width, 0, width, height);</span>
+
+<span class="nc" id="L117">        batch.draw(backgroundLayer3, -o3, 0, width, height);</span>
+<span class="nc" id="L118">        batch.draw(backgroundLayer3, -o3 + width, 0, width, height);</span>
+
+<span class="nc" id="L120">        batch.draw(backgroundLayer2, -o2, 0, width, height);</span>
+<span class="nc" id="L121">        batch.draw(backgroundLayer2, -o2 + width, 0, width, height);</span>
+
+<span class="nc" id="L123">    }</span>
+
+    private void drawParallaxForeground() {
+<span class="nc" id="L126">        float width = viewport.getWorldWidth();</span>
+<span class="nc" id="L127">        float height = viewport.getWorldHeight();</span>
+
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (width &lt;= 0f) return;</span>
+
+        // compute per-layer offsets from the running offset and wrap per-layer
+<span class="nc" id="L132">        float o1 = positiveMod(parallaxOffset * 0.8f, width);</span>
+
+<span class="nc" id="L134">        batch.draw(backgroundLayer1, -o1, 0, width, height);</span>
+<span class="nc" id="L135">        batch.draw(backgroundLayer1, -o1 + width, 0, width, height);</span>
+<span class="nc" id="L136">    }</span>
+
+    private void drawCredits() {
+<span class="nc" id="L139">        float startY = -160; // Starting Y position for the first credit line</span>
+<span class="nc" id="L140">        creditsOffset += Gdx.graphics.getDeltaTime() * CREDITS_SCROLL_SPEED;</span>
+
+<span class="nc" id="L142">        textureManager.getMainLayout().setText(textureManager.getShopFont(), &quot;You Escaped!&quot;);</span>
+<span class="nc" id="L143">        float titleWidth = textureManager.getMainLayout().width;</span>
+<span class="nc" id="L144">        float titleX = (viewport.getWorldWidth() - titleWidth) / 2f;</span>
+<span class="nc" id="L145">        float titleY = creditsOffset;</span>
+
+<span class="nc" id="L147">        textureManager.getMainLayout().setText(textureManager.getShopFont(), &quot;Your Score: &quot; + this.latestScore);</span>
+<span class="nc" id="L148">        titleWidth = textureManager.getMainLayout().width;</span>
+<span class="nc" id="L149">        titleX = (viewport.getWorldWidth() - titleWidth) / 2f;</span>
+<span class="nc" id="L150">        titleY = -60 + creditsOffset;</span>
+
+        // Loop through credits lines and draw them
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        for (int i = 0; i &lt; creditsLines.length; i++) {</span>
+<span class="nc" id="L154">            float y = startY - (i * 60) + creditsOffset;</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">            if (y &lt; -20) continue; // Skip lines that are off-screen at the bottom</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">            if (y &gt; viewport.getWorldHeight() + 20) continue; // Skip lines that are off-screen at the top</span>
+
+<span class="nc bnc" id="L158" title="All 2 branches missed.">            BitmapFont fontToUse = creditsLines[i][0].equals(&quot;big&quot;) ? textureManager.getShopFont() : textureManager.getGameSmallFont();</span>
+
+<span class="nc" id="L160">            textureManager.getMainLayout().setText(fontToUse, creditsLines[i][1]);</span>
+<span class="nc" id="L161">            float textWidth = textureManager.getMainLayout().width;</span>
+<span class="nc" id="L162">            float x = (viewport.getWorldWidth() - textWidth) / 2f;</span>
+<span class="nc" id="L163">            fontToUse.draw(batch, creditsLines[i][1], x, y);</span>
+
+        }
+<span class="nc" id="L166">    }</span>
+
+    private void drawTextOverlay() {
+
+        // draw press 'E' to continue at bottom right
+<span class="nc" id="L171">        String prompt = &quot;Press 'E' to continue&quot;;</span>
+<span class="nc" id="L172">        BitmapFont fontToUse = textureManager.getGameSmallFont();</span>
+<span class="nc" id="L173">        textureManager.getMainLayout().setText(fontToUse, prompt);</span>
+<span class="nc" id="L174">        float textWidth = textureManager.getMainLayout().width;</span>
+<span class="nc" id="L175">        float x = viewport.getWorldWidth() - textWidth - 20f;</span>
+<span class="nc" id="L176">        float y = 40f;</span>
+<span class="nc" id="L177">        fontToUse.draw(batch, prompt, x, y);</span>
+
+<span class="nc" id="L179">    }</span>
+
+    @Override
+    public void draw() {
+<span class="nc" id="L183">        stateTime += Gdx.graphics.getDeltaTime()*0.25f; // Accumulate elapsed animation time</span>
+
+        // Setup for new frame
+<span class="nc" id="L186">        viewport.apply();</span>
+<span class="nc" id="L187">        batch.setProjectionMatrix(viewport.getCamera().combined);</span>
+<span class="nc" id="L188">        Gdx.gl.glClearColor(0, 0, 0, 1);</span>
+<span class="nc" id="L189">        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);</span>
+
+<span class="nc bnc" id="L191" title="All 4 branches missed.">        if (Gdx.input.isKeyPressed(Input.Keys.E) &amp;&amp; System.currentTimeMillis() - this.buttonCooldown &gt; 5000) {</span>
+<span class="nc" id="L192">            System.out.println(System.currentTimeMillis() - this.buttonCooldown);</span>
+<span class="nc" id="L193">            this.nextMenu = &quot;Main&quot;;</span>
+<span class="nc" id="L194">            return;</span>
+        }
+
+<span class="nc" id="L197">        batch.begin();</span>
+<span class="nc" id="L198">        drawParallaxBackground();</span>
+        
+
+        // Draw animated bus in the center
+<span class="nc" id="L202">        TextureRegion currentFrame = walkAnimation.getKeyFrame(stateTime, true);</span>
+<span class="nc" id="L203">        batch.draw(</span>
+            currentFrame,
+            100,
+            200,
+            600,
+            300
+        );
+<span class="nc" id="L210">        batch.draw(textureManager.getOverlayTexture(),0,0, 1280, 960);</span>
+
+<span class="nc" id="L212">        drawCredits();</span>
+<span class="nc" id="L213">        drawParallaxForeground();</span>
+
+<span class="nc bnc" id="L215" title="All 2 branches missed.">        if (System.currentTimeMillis() - this.buttonCooldown &gt; 5000) {</span>
+<span class="nc" id="L216">            drawTextOverlay();</span>
+        }
+<span class="nc" id="L218">        batch.end();</span>
+<span class="nc" id="L219">    }</span>
+
+    // Populates walkFrames.
+    private void populateFrames() {
+<span class="fc" id="L223">        int ssCols = 4;</span>
+<span class="fc" id="L224">        int ssRows = 1;</span>
+
+        // Use the sprite's texture (which was provided as walkSheet in the constructor)
+<span class="fc" id="L227">        Texture spriteSheetTexture = this.sprite.getTexture();</span>
+<span class="fc" id="L228">        TextureRegion[][] tmp = TextureRegion.split(spriteSheetTexture, spriteSheetTexture.getWidth() / ssCols, spriteSheetTexture.getHeight() / ssRows);</span>
+        // walkFrames setup.
+<span class="fc" id="L230">        this.walkFrames = new TextureRegion[4];</span>
+<span class="fc" id="L231">        int index = 0;</span>
+<span class="fc bfc" id="L232" title="All 2 branches covered.">        for (int i = 0; i &lt; 4; i ++) {</span>
+<span class="fc" id="L233">            this.walkFrames[index++] = tmp[0][i];</span>
+        }
+<span class="fc" id="L235">    }</span>
+
+    public void onSwitchIn() {
+<span class="nc" id="L238">        this.buttonCooldown = System.currentTimeMillis();</span>
+<span class="nc" id="L239">        this.nextMenu = &quot;Credits&quot;;</span>
+<span class="nc" id="L240">        this.creditsOffset = 0f;</span>
+<span class="nc" id="L241">        this.parallaxOffset = 0f;</span>
+<span class="nc" id="L242">        this.stateTime = 0f;</span>
+<span class="nc" id="L243">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

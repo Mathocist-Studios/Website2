@@ -1,0 +1,905 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Game.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni</a> &gt; <span class="el_source">Game.java</span></div><h1>Game.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Objects;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapLayers;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.mathochiststudios.escapefromuni.Tests.*;
+import com.mathochiststudios.escapefromuni.UI.HUD;
+import com.mathochiststudios.escapefromuni.UI.NotificationSystem.Notification;
+import com.mathochiststudios.escapefromuni.UI.NotificationSystem.NotificationType;
+import com.mathochiststudios.escapefromuni.UI.QuestSystem.Quests.EscapeUniQuest;
+import com.mathochiststudios.escapefromuni.collectibles.Collectible;
+import com.mathochiststudios.escapefromuni.entities.Enemy.Enemy;
+import com.mathochiststudios.escapefromuni.entities.InteractableEntity.InteractableEntity;
+import com.mathochiststudios.escapefromuni.entities.Player;
+import com.mathochiststudios.escapefromuni.entities.PlayerInventory.InventoryObject;
+import com.mathochiststudios.escapefromuni.levels.BasementLevel;
+import com.mathochiststudios.escapefromuni.levels.BusLevel;
+import com.mathochiststudios.escapefromuni.levels.LBShrineLevel;
+import com.mathochiststudios.escapefromuni.levels.LakeLevel;
+import com.mathochiststudios.escapefromuni.levels.Level;
+import com.mathochiststudios.escapefromuni.levels.R01_LibraryFloor3;
+import com.mathochiststudios.escapefromuni.levels.R04_LibraryFloor0;
+import com.mathochiststudios.escapefromuni.levels.R05_MarketSquare;
+import com.mathochiststudios.escapefromuni.levels.ShopLevel;
+import com.mathochiststudios.escapefromuni.powerups.SpeedPowerup;
+
+import javax.annotation.processing.Generated;
+
+public class Game {
+
+    public boolean gameEnded;
+    public String WinOrLose;
+
+<span class="fc" id="L50">    private final float root2 = 1.41f; // i like this</span>
+
+<span class="fc" id="L52">    private final float minimapTileSize = 1.4f;</span>
+
+    private final Player player;
+
+    private final ArrayList&lt;Level&gt; levels;
+
+    TiledMap map; // define map
+    ITiledMapRenderer mapRenderer; // define map renderer
+    FitViewport viewport;
+    OrthographicCamera camera;
+    ISpriteBatch spriteBatch;
+
+    public static Level currentLevel;
+
+    float unitScale;
+
+    TiledMapTileLayer mapCollisionLayer;
+    public ArrayList&lt;Rectangle&gt; mapCollisions;
+
+    TiledMapTileLayer mapExitBackLayer;
+    ArrayList&lt;Rectangle&gt; mapExitBackCollisions;
+
+    TiledMapTileLayer mapExitForwardLayer;
+    ArrayList&lt;Rectangle&gt; mapExitForwardCollisions;
+
+    TiledMapTileLayer mapExitSideLayer;
+    ArrayList&lt;Rectangle&gt; mapExitSideCollisions;
+
+    TiledMapTileLayer mapExitSide2Layer;
+    ArrayList&lt;Rectangle&gt; mapExitSide2Collisions;
+
+    TiledMapTileLayer mapSlowLayer;
+    ArrayList&lt;Rectangle&gt; mapSlowCollisions;
+
+    float stateTime;
+
+    public boolean shopActive;
+<span class="fc" id="L89">    public boolean friendFollowing = false;</span>
+    public Level friendLocation;
+
+    private final HUD hud;
+    private final TextureManager textureManager;
+    private GameDifficulty gameDifficulty;
+
+    private final Main mainApp;
+
+    // Runs at start
+<span class="fc" id="L99">    public Game(Main mainApp, GameDifficulty gameDifficulty) {</span>
+
+<span class="fc" id="L101">        this.mainApp = mainApp;</span>
+<span class="fc" id="L102">        this.gameDifficulty = gameDifficulty;</span>
+
+<span class="fc" id="L104">        player = new Player(this, (float) gameDifficulty.getBaseMovementSpeed());</span>
+
+<span class="fc" id="L106">        hud = new HUD(this, player);</span>
+<span class="fc" id="L107">        hud.getQuestSystem().addMainQuest(</span>
+            new EscapeUniQuest()
+        );
+
+<span class="fc" id="L111">        textureManager = new TextureManager(hud.getUiViewport());</span>
+
+<span class="fc" id="L113">        WinOrLose = &quot;Return&quot;; // Should be &quot;Return&quot;</span>
+<span class="fc" id="L114">        gameEnded = false;</span>
+<span class="fc" id="L115">        player.setGameTimer(new Timer(5*60));</span>
+
+        // IMPORTANT: This is the list of levels, the player can traverse back and forth in this order.
+        //            Add appropriate exits forward and/or backward in the tilemap on their individual layers.
+        // levels = new ArrayList&lt;Level&gt;(Arrays.asList(new R01_LibraryFloor3(), new R02_LibraryFloor2(), new R03_LibraryFloor1(), new R04_LibraryFloor0(), new R05_MarketSquare(), new R06_westToEastLevel(), new R07_BusLevel()));
+
+        // remove library floor 1 and 2 to shorten game
+<span class="fc" id="L122">        levels = new ArrayList&lt;&gt;(Arrays.asList(</span>
+            new R01_LibraryFloor3(this),
+            new R04_LibraryFloor0(this),
+            new R05_MarketSquare(this),
+            new BusLevel(this)
+        ));
+
+        // This sets the next and previous level attributes of the room objects for ease of use
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        for (int i = 0; i &lt; levels.size(); i++){</span>
+<span class="fc" id="L131">            levels.get(i).setMinimapSprite(new Sprite(hud.getEmptyMinimapIcon()));</span>
+<span class="fc" id="L132">            levels.get(i).getMinimapSprite().setX(38f);</span>
+<span class="fc" id="L133">            levels.get(i).getMinimapSprite().setSize(minimapTileSize-0.1f,minimapTileSize-0.1f);</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">            if (i-1&gt;=0){</span>
+<span class="fc" id="L135">                levels.get(i).setPrevLevel(levels.get(i-1));</span>
+            }
+<span class="fc bfc" id="L137" title="All 2 branches covered.">            if (i+1&lt;levels.size()){</span>
+<span class="fc" id="L138">                levels.get(i).setNextLevel(levels.get(i+1));</span>
+            }
+        }
+
+        // Set up misc. side level stuff here
+
+        // Jacob: Currently set up for ShopLevel
+<span class="fc" id="L145">        Level ShopLevel = new ShopLevel(this);</span>
+<span class="fc" id="L146">        levels.get(2).setSideLevel(ShopLevel);</span>
+<span class="fc" id="L147">        ShopLevel.setSideLevel(levels.get(2));</span>
+        //generate minimap for side level
+<span class="fc" id="L149">        ShopLevel.setMinimapSprite(new Sprite(hud.getEmptyMinimapIcon()));</span>
+<span class="fc" id="L150">        ShopLevel.getMinimapSprite().setX(38f-minimapTileSize);</span>
+<span class="fc" id="L151">        ShopLevel.getMinimapSprite().setSize(minimapTileSize-0.1f,minimapTileSize-0.1f);</span>
+<span class="fc" id="L152">        ShopLevel.setNextLevel(levels.get(2));</span>
+
+        // Setup lake level
+<span class="fc" id="L155">        Level LakeLevel = new LakeLevel(this);</span>
+<span class="fc" id="L156">        levels.get(2).setSide2Level(LakeLevel);</span>
+<span class="fc" id="L157">        LakeLevel.setSideLevel(levels.get(2));</span>
+<span class="fc" id="L158">        LakeLevel.setPrevLevel(levels.get(2));</span>
+        //generate minimap for side level
+<span class="fc" id="L160">        LakeLevel.setMinimapSprite(new Sprite(hud.getEmptyMinimapIcon()));</span>
+<span class="fc" id="L161">        LakeLevel.getMinimapSprite().setX(38f-2*minimapTileSize);</span>
+<span class="fc" id="L162">        LakeLevel.getMinimapSprite().setSize(minimapTileSize-0.1f,minimapTileSize-0.1f);</span>
+<span class="fc" id="L163">        LakeLevel.setNextLevel(levels.get(2));</span>
+<span class="fc" id="L164">        friendLocation = LakeLevel;</span>
+
+        // setup basement level
+<span class="fc" id="L167">        Level BasementLevel = new BasementLevel(this);</span>
+<span class="fc" id="L168">        levels.get(1).setSideLevel(BasementLevel);</span>
+<span class="fc" id="L169">        BasementLevel.setSideLevel(levels.get(1));</span>
+<span class="fc" id="L170">        BasementLevel.setPrevLevel(levels.get(1));</span>
+        //generate minimap for side level
+<span class="fc" id="L172">        BasementLevel.setMinimapSprite(new Sprite(hud.getEmptyMinimapIcon()));</span>
+<span class="fc" id="L173">        BasementLevel.getMinimapSprite().setX(38f-minimapTileSize);</span>
+<span class="fc" id="L174">        BasementLevel.getMinimapSprite().setSize(minimapTileSize-0.1f,minimapTileSize-0.1f);</span>
+<span class="fc" id="L175">        BasementLevel.setNextLevel(levels.get(1));</span>
+
+        // setup LBShrine level
+<span class="fc" id="L178">        Level lbShrineLevel = new LBShrineLevel(this);</span>
+<span class="fc" id="L179">        levels.get(1).setSide2Level(lbShrineLevel);</span>
+<span class="fc" id="L180">        lbShrineLevel.setSide2Level(levels.get(1));</span>
+<span class="fc" id="L181">        lbShrineLevel.setPrevLevel(levels.get(1));</span>
+        //generate minimap for side level
+<span class="fc" id="L183">        lbShrineLevel.setMinimapSprite(new Sprite(hud.getEmptyMinimapIcon()));</span>
+<span class="fc" id="L184">        lbShrineLevel.getMinimapSprite().setX(38f-2*minimapTileSize);</span>
+<span class="fc" id="L185">        lbShrineLevel.getMinimapSprite().setSize(minimapTileSize-0.1f,minimapTileSize-0.1f);</span>
+<span class="fc" id="L186">        lbShrineLevel.setNextLevel(levels.get(1));</span>
+
+        // The player always starts at the first level in the array.
+<span class="fc" id="L189">        currentLevel = levels.get(0);</span>
+
+<span class="fc" id="L191">        viewport = new FitViewport(40, 30);</span>
+        // Starting level is floor 0 of the library (a tmx).
+<span class="fc" id="L193">        map = new TmxMapLoader().load(&quot;maps/libraryfloor0.tmx&quot;);</span>
+<span class="fc" id="L194">        unitScale = 1 / 16f;</span>
+
+        try {
+<span class="nc" id="L197">            mapRenderer = new LiveTiledMapRenderer(map, unitScale);</span>
+<span class="fc" id="L198">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L199">            mapRenderer = new HeadlessTiledMapRenderer();</span>
+<span class="nc" id="L200">        }</span>
+
+<span class="fc" id="L202">        camera = new OrthographicCamera();</span>
+<span class="fc" id="L203">        camera.setToOrtho(false, 40, 30);</span>
+<span class="fc" id="L204">        mapRenderer.setView(camera);</span>
+
+<span class="pc bpc" id="L206" title="1 of 2 branches missed.">        if (Main.TESTING) {</span>
+<span class="fc" id="L207">            spriteBatch = new HeadlessBatch();</span>
+        } else {
+<span class="nc" id="L209">            spriteBatch = new LiveSpriteBatch();</span>
+        }
+
+<span class="fc" id="L212">        switchToLevel(currentLevel, &quot;Forward&quot;);</span>
+
+<span class="fc" id="L214">        stateTime = 0f;</span>
+
+<span class="fc" id="L216">        Notification welcomeNotification = new Notification(</span>
+            &quot;Ohh.. I think I fell asleep in the library again...\nI better get going before it closes!&quot;,
+            5,
+            NotificationType.SPEECH,
+<span class="fc" id="L220">            textureManager.getGameSmallFont()</span>
+        );
+<span class="fc" id="L222">        hud.getNotificationManager().addNotification(welcomeNotification);</span>
+
+<span class="fc" id="L224">    }</span>
+
+
+    public Player getPlayer(){
+<span class="fc" id="L228">        return this.player;</span>
+    }
+
+    private ArrayList&lt;String&gt; mapLayersToList(MapLayers mapLayers) {
+<span class="fc" id="L232">        ArrayList&lt;String&gt; tempList = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L233" title="All 2 branches covered.">        for (int i = 0; i &lt; mapLayers.size(); i++) {</span>
+<span class="fc" id="L234">            tempList.add(mapLayers.get(i).getName());</span>
+        }
+<span class="fc" id="L236">        return tempList;</span>
+    }
+
+    // Switches to a new map and moves the player appropriately when entering a new room.
+    public void switchToLevel(Level newLevel, String enterDirection) {
+        // Check if newLevel is null to prevent NullPointerException
+<span class="pc bpc" id="L242" title="1 of 2 branches missed.">        if (newLevel == null) {</span>
+<span class="nc" id="L243">            return;</span>
+        }
+
+        // Prepare your application here.
+<span class="fc" id="L247">        currentLevel = newLevel;</span>
+
+
+<span class="fc" id="L250">        newLevel.getMinimapSprite().setTexture(hud.getPlayerMinimapIcon());</span>
+
+<span class="fc" id="L252">        map = new TmxMapLoader().load(newLevel.getMapName());</span>
+<span class="fc" id="L253">        mapRenderer.setMap(map);</span>
+
+<span class="pc bpc" id="L255" title="1 of 5 branches missed.">        switch (enterDirection) {</span>
+            case &quot;Forward&quot;:
+<span class="fc" id="L257">                player.getMoneySprite().setX(newLevel.getStartX());</span>
+<span class="fc" id="L258">                player.getMoneySprite().setY(newLevel.getStartY());</span>
+<span class="fc bfc" id="L259" title="All 2 branches covered.">                if (newLevel.getPrevLevel() != null) {</span>
+<span class="fc" id="L260">                    newLevel.getPrevLevel().getMinimapSprite().setTexture(hud.getEmptyMinimapIcon());</span>
+                }
+                break;
+            case &quot;Side&quot;:
+<span class="fc" id="L264">                player.getMoneySprite().setX(newLevel.getSideX());</span>
+<span class="fc" id="L265">                player.getMoneySprite().setY(newLevel.getSideY());</span>
+<span class="pc bpc" id="L266" title="1 of 2 branches missed.">                if (newLevel.getSideLevel() != null) {</span>
+<span class="fc" id="L267">                    newLevel.getSideLevel().getMinimapSprite().setTexture(hud.getEmptyMinimapIcon());</span>
+                }
+                break;
+            case &quot;Side2&quot;:
+<span class="fc" id="L271">                player.getMoneySprite().setX(newLevel.getSide2X());</span>
+<span class="fc" id="L272">                player.getMoneySprite().setY(newLevel.getSide2Y());</span>
+<span class="pc bpc" id="L273" title="1 of 2 branches missed.">                if (newLevel.getSide2Level() != null) {</span>
+<span class="nc" id="L274">                    newLevel.getSide2Level().getMinimapSprite().setTexture(hud.getEmptyMinimapIcon());</span>
+                }
+                break;
+            case &quot;Back&quot;:
+<span class="nc" id="L278">                player.getMoneySprite().setX(newLevel.getEndX());</span>
+<span class="nc" id="L279">                player.getMoneySprite().setY(newLevel.getEndY());</span>
+<span class="nc bnc" id="L280" title="All 2 branches missed.">                if (newLevel.getNextLevel() != null) {</span>
+<span class="nc" id="L281">                    newLevel.getNextLevel().getMinimapSprite().setTexture(hud.getEmptyMinimapIcon());</span>
+                }
+                break;
+        }
+
+        // Handle both &quot;Collision&quot; and &quot;collision&quot; layer names
+<span class="pc bpc" id="L287" title="1 of 2 branches missed.">        if (mapLayersToList(map.getLayers()).contains(&quot;Collision&quot;)) {</span>
+<span class="fc" id="L288">            mapCollisionLayer = (TiledMapTileLayer) map.getLayers().get(&quot;Collision&quot;);</span>
+<span class="nc bnc" id="L289" title="All 2 branches missed.">        } else if (mapLayersToList(map.getLayers()).contains(&quot;collision&quot;)) {</span>
+<span class="nc" id="L290">            mapCollisionLayer = (TiledMapTileLayer) map.getLayers().get(&quot;collision&quot;);</span>
+        } else {
+            // Default to first layer if collision layer not found
+<span class="nc" id="L293">            mapCollisionLayer = (TiledMapTileLayer) map.getLayers().get(0);</span>
+        }
+
+<span class="fc" id="L296">        viewport.setWorldSize(mapCollisionLayer.getWidth(),mapCollisionLayer.getHeight());</span>
+
+        // Handle ExitBack layer (may not exist in all maps)
+<span class="fc bfc" id="L299" title="All 2 branches covered.">        if (mapLayersToList(map.getLayers()).contains(&quot;ExitBack&quot;)) {</span>
+<span class="fc" id="L300">            mapExitBackLayer = (TiledMapTileLayer) map.getLayers().get(&quot;ExitBack&quot;);</span>
+<span class="fc" id="L301">            mapExitBackCollisions = createCollisionRects(mapExitBackLayer);</span>
+        } else {
+<span class="fc" id="L303">            mapExitBackLayer = null;</span>
+<span class="fc" id="L304">            mapExitBackCollisions = new ArrayList&lt;&gt;();</span>
+        }
+
+        // Handle ExitForward layer (may not exist in all maps)
+<span class="fc bfc" id="L308" title="All 2 branches covered.">        if (mapLayersToList(map.getLayers()).contains(&quot;ExitForward&quot;)) {</span>
+<span class="fc" id="L309">            mapExitForwardLayer = (TiledMapTileLayer) map.getLayers().get(&quot;ExitForward&quot;);</span>
+<span class="fc" id="L310">            mapExitForwardCollisions = createCollisionRects(mapExitForwardLayer);</span>
+        } else {
+<span class="fc" id="L312">            mapExitForwardLayer = null;</span>
+<span class="fc" id="L313">            mapExitForwardCollisions = new ArrayList&lt;&gt;();</span>
+        }
+
+        //check for ExitSide
+<span class="fc bfc" id="L317" title="All 2 branches covered.">        if (mapLayersToList(map.getLayers()).contains(&quot;ExitSide&quot;)) {</span>
+<span class="fc" id="L318">            mapExitSideLayer = (TiledMapTileLayer) map.getLayers().get(&quot;ExitSide&quot;);</span>
+<span class="fc" id="L319">            mapExitSideCollisions = createCollisionRects(mapExitSideLayer);</span>
+        } else {
+<span class="fc" id="L321">            mapExitSideLayer = null;</span>
+<span class="fc" id="L322">            mapExitSideCollisions = new ArrayList&lt;&gt;();</span>
+        }
+
+        //check for ExitSide2
+<span class="fc bfc" id="L326" title="All 2 branches covered.">        if (mapLayersToList(map.getLayers()).contains(&quot;ExitSide2&quot;)) {</span>
+<span class="fc" id="L327">            mapExitSide2Layer = (TiledMapTileLayer) map.getLayers().get(&quot;ExitSide2&quot;);</span>
+<span class="fc" id="L328">            mapExitSide2Collisions = createCollisionRects(mapExitSide2Layer);</span>
+        } else {
+<span class="fc" id="L330">            mapExitSide2Layer = null;</span>
+<span class="fc" id="L331">            mapExitSide2Collisions = new ArrayList&lt;&gt;();</span>
+        }
+
+<span class="fc bfc" id="L334" title="All 2 branches covered.">        if (mapLayersToList(map.getLayers()).contains(&quot;Slow&quot;)) {</span>
+<span class="fc" id="L335">            mapSlowLayer = (TiledMapTileLayer) map.getLayers().get(&quot;Slow&quot;);</span>
+<span class="fc" id="L336">            mapSlowCollisions = createCollisionRects(mapSlowLayer);</span>
+        } else {
+<span class="fc" id="L338">            mapSlowLayer = null;</span>
+<span class="fc" id="L339">            mapSlowCollisions = new ArrayList&lt;&gt;();</span>
+        }
+
+        // mapCollisions will be used to collide, update when switching map.
+<span class="fc" id="L343">        mapCollisions = createCollisionRects(mapCollisionLayer);</span>
+        // Notify the level that it has been entered so it can access map collision data
+<span class="fc" id="L345">        newLevel.onEnter(mapCollisionLayer, mapCollisions, player);</span>
+<span class="fc" id="L346">        player.getLbPet().setEntityX(player.getMoneySprite().getX() - 2);</span>
+<span class="fc" id="L347">        player.getLbPet().setEntityY(player.getMoneySprite().getY());</span>
+<span class="fc" id="L348">    }</span>
+
+    // Constructs an ArrayList of all collision rectangles for the layer provided
+    private ArrayList&lt;Rectangle&gt; createCollisionRects(TiledMapTileLayer layer) {
+<span class="fc" id="L352">        ArrayList&lt;Rectangle&gt; tempRectArray = new ArrayList&lt;&gt;();</span>
+
+        // Iterate over every tile, construct a rectangle around the tile, and add to arraylist
+<span class="fc bfc" id="L355" title="All 2 branches covered.">        for (int x = 0; x &lt; layer.getWidth(); x++) {</span>
+<span class="fc bfc" id="L356" title="All 2 branches covered.">            for (int y = 0; y &lt; layer.getHeight(); y++) {</span>
+<span class="fc" id="L357">                TiledMapTileLayer.Cell cell = layer.getCell(x, y); // Retrieve cell at our x and y</span>
+
+<span class="fc bfc" id="L359" title="All 2 branches covered.">                if (cell == null) // If nothing here, skip over it</span>
+<span class="fc" id="L360">                    continue;</span>
+
+                // Construct rectangle at this tile position
+<span class="fc" id="L363">                Rectangle tileRect = new Rectangle(x, y, 1, 1);</span>
+
+                // Add this rectangle to our array
+<span class="fc" id="L366">                tempRectArray.add(tileRect);</span>
+            }
+        }
+
+<span class="fc" id="L370">        return tempRectArray;</span>
+    }
+
+    public void resize(int width, int height) {
+<span class="fc" id="L374">        viewport.update(width, height, true); // true centers the camera</span>
+<span class="fc" id="L375">        hud.getUiViewport().update(width, height, true);</span>
+        // If the window is minimized on a desktop (LWJGL3) platform, width and height are 0, which causes problems.
+        // In that case, we don't resize anything, and wait for the window to be a normal size before updating.
+<span class="pc bpc" id="L378" title="3 of 4 branches missed.">        if(width &lt;= 0 || height &lt;= 0) return;</span>
+
+        // Resize your application here. The parameters represent the new window size.
+
+        // what?
+<span class="nc" id="L383">    }</span>
+
+    //render is called in main
+
+    public void input() {
+<span class="fc" id="L388">        float delta = Gdx.graphics.getDeltaTime(); // Change in time between frames</span>
+<span class="fc" id="L389">        player.update(delta); //called to check for active powerups</span>
+
+        // We will use these variables to allow for consistent speed on diagonal movement.
+<span class="fc" id="L392">        float velX = 0f;</span>
+<span class="fc" id="L393">        float velY = 0f;</span>
+
+<span class="fc" id="L395">        player.setOldMoneyX(player.getMoneySprite().getX());</span>
+<span class="fc" id="L396">        player.setOldMoneyY(player.getMoneySprite().getY());</span>
+
+<span class="fc" id="L398">        String oldMoveDir = player.getMoveDirection();</span>
+<span class="fc" id="L399">        boolean isMoving = false;</span>
+<span class="pc bpc" id="L400" title="1 of 4 branches missed.">        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {</span>
+<span class="fc" id="L401">            velX = player.getSpeed() * delta; // Convert to speed/s for consistent gameplay on different FPS</span>
+<span class="fc" id="L402">            player.setMoveDirection(&quot;Right&quot;);</span>
+<span class="fc" id="L403">            isMoving = true;</span>
+        }
+<span class="pc bpc" id="L405" title="1 of 4 branches missed.">        else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {</span>
+<span class="fc" id="L406">            velX = -player.getSpeed() * delta;</span>
+<span class="fc" id="L407">            player.setMoveDirection(&quot;Left&quot;);</span>
+<span class="fc" id="L408">            isMoving = true;</span>
+        }
+        // Use if here rather than else if, so movement can happen on both axis at once
+<span class="pc bpc" id="L411" title="1 of 4 branches missed.">        if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) {</span>
+<span class="fc" id="L412">            velY = player.getSpeed() * delta;</span>
+<span class="fc" id="L413">            player.setMoveDirection(&quot;Up&quot;);</span>
+<span class="fc" id="L414">            isMoving = true;</span>
+        }
+<span class="pc bpc" id="L416" title="1 of 4 branches missed.">        else if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) {</span>
+<span class="fc" id="L417">            velY = -player.getSpeed() * delta;</span>
+<span class="fc" id="L418">            player.setMoveDirection(&quot;Down&quot;);</span>
+<span class="fc" id="L419">            isMoving = true;</span>
+        }
+<span class="fc bfc" id="L421" title="All 2 branches covered.">        if (!isMoving) {</span>
+<span class="fc" id="L422">            player.setMoveDirection(&quot;Stationary&quot;);</span>
+        }
+<span class="fc bfc" id="L424" title="All 2 branches covered.">        if (!Objects.equals(player.getMoveDirection(), oldMoveDir)) {</span>
+<span class="fc" id="L425">            stateTime = 0f;</span>
+        }
+
+        // If the player moves diagonally, we need to divide their speed by root 2 to maintain the correct speed
+        // in the direction of motion.
+<span class="pc bpc" id="L430" title="1 of 4 branches missed.">        if (Math.abs(velX) &gt; 0.01f &amp;&amp; Math.abs(velY) &gt; 0.01f) {</span>
+<span class="fc" id="L431">            velX = velX / root2;</span>
+<span class="fc" id="L432">            velY = velY / root2;</span>
+        }
+
+        // We will use this rectangle as a preview, to see if the player would collide if they moved
+        // as they are trying to.
+        // If they would collide, disallow the movement in that axis.
+<span class="fc" id="L438">        Rectangle tRect = new Rectangle();</span>
+
+        // NOTE: kind of flawed but won't be noticeable unless very high speed or very low fps,
+        // as it doesn't make you flush against a wall if you move into it
+
+<span class="fc" id="L443">        tRect.set(player.getMoneySprite().getX()+velX, player.getMoneySprite().getY(), player.getMoneyWidth(),</span>
+<span class="fc" id="L444">            player.getMoneyHeight());</span>
+<span class="pc bpc" id="L445" title="1 of 4 branches missed.">        if (!wallCollisionCheck(tRect) &amp;&amp; !shopActive) {</span>
+<span class="fc" id="L446">            player.getMoneySprite().translateX(velX);</span>
+        }
+
+<span class="fc" id="L449">        tRect.set(player.getMoneySprite().getX(), player.getMoneySprite().getY()+velY, player.getMoneyWidth(),</span>
+<span class="fc" id="L450">            player.getMoneyHeight());</span>
+<span class="pc bpc" id="L451" title="1 of 4 branches missed.">        if (!wallCollisionCheck(tRect) &amp;&amp; !shopActive) {</span>
+<span class="fc" id="L452">            player.getMoneySprite().translateY(velY);</span>
+        }
+
+        // Update the player's collision rectangle for the trigger collision check
+<span class="fc" id="L456">        player.getMoneyRectangle().x = player.getMoneySprite().getX();</span>
+<span class="fc" id="L457">        player.getMoneyRectangle().y = player.getMoneySprite().getY();</span>
+
+        // Check for collisions with non-walls and respond appropriately
+<span class="fc" id="L460">        triggerCollisionCheck(player.getMoneyRectangle());</span>
+
+<span class="fc bfc" id="L462" title="All 2 branches covered.">        for (Collectible coin : currentLevel.getLevelCoins()) {</span>
+<span class="pc bpc" id="L463" title="2 of 4 branches missed.">            if (!(coin.isCollected()) &amp;&amp; player.getMoneyRectangle().overlaps(coin.getCollider())) {</span>
+<span class="nc" id="L464">                coin.collect();</span>
+<span class="nc" id="L465">                coin.SoundEffect.play();</span>
+            }
+<span class="fc" id="L467">        }</span>
+
+<span class="fc bfc" id="L469" title="All 2 branches covered.">        for (SpeedPowerup powerup : currentLevel.getLevelPowerups()) {</span>
+<span class="pc bpc" id="L470" title="1 of 4 branches missed.">            if (!(powerup.isCollected()) &amp;&amp; player.getMoneyRectangle().overlaps(powerup.getCollider())) {</span>
+<span class="fc" id="L471">                powerup.collect();</span>
+<span class="fc" id="L472">                powerup.apply(player);</span>
+<span class="fc" id="L473">                powerup.getSoundEffect().play();</span>
+<span class="fc" id="L474">                player.getEventsCounter().speedPositiveEventsEncountered();</span>
+            }
+<span class="fc" id="L476">        }</span>
+
+        // TODO: check this logic
+<span class="fc bfc" id="L479" title="All 2 branches covered.">        for (Enemy enemy : currentLevel.getLevelEnemies()) {</span>
+<span class="fc bfc" id="L480" title="All 4 branches covered.">            if (!(enemy.isDead()) &amp;&amp; player.getMoneyRectangle().overlaps(enemy.getCollider())) {</span>
+                // Trigger enemy behavior
+<span class="fc" id="L482">                enemy.triggerCollisionBehavior(player);</span>
+<span class="fc" id="L483">                break; // Exit loop after first collision to prevent multiple reactions</span>
+            }
+<span class="fc" id="L485">        }</span>
+
+<span class="fc bfc" id="L487" title="All 2 branches covered.">        for (InteractableEntity entity : getInteractableInRange(</span>
+<span class="fc" id="L488">            player.getMoneySprite().getX() + player.getMoneyWidth() / 2,</span>
+<span class="fc" id="L489">            player.getMoneySprite().getY() + player.getMoneyHeight() / 2)) {</span>
+<span class="fc bfc" id="L490" title="All 2 branches covered.">            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {</span>
+<span class="fc" id="L491">                entity.onInteract(player, currentLevel);</span>
+            }
+<span class="fc" id="L493">        }</span>
+
+<span class="fc" id="L495">        player.getLbPet().setObjectivePoint(new float[] {player.getMoneySprite().getX(), player.getMoneySprite().getY()});</span>
+<span class="fc" id="L496">        player.getLbPet().update();</span>
+
+<span class="fc" id="L498">    }</span>
+
+    private ArrayList&lt;InteractableEntity&gt; getInteractableInRange(float playerX, float playerY) {
+<span class="fc" id="L501">        ArrayList&lt;InteractableEntity&gt; interactablesInRange = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L503" title="All 2 branches covered.">        for (InteractableEntity entity : currentLevel.getLevelInteractableEntities()) {</span>
+<span class="fc" id="L504">            float interactionRange = entity.getInteractionRadius();</span>
+<span class="fc" id="L505">            float[] entityBBox = new float[] {</span>
+<span class="fc" id="L506">                entity.getEntityX(),</span>
+<span class="fc" id="L507">                entity.getEntityY(),</span>
+<span class="fc" id="L508">                entity.getEntityWidth(),</span>
+<span class="fc" id="L509">                entity.getEntityHeight()</span>
+            };
+
+<span class="fc bfc" id="L512" title="All 2 branches covered.">            boolean is_in_range = distanceFromBBox(entityBBox, playerX, playerY) &lt;= interactionRange;</span>
+<span class="fc bfc" id="L513" title="All 2 branches covered.">            if (is_in_range) {</span>
+<span class="fc" id="L514">                interactablesInRange.add(entity);</span>
+            }
+<span class="fc" id="L516">        }</span>
+
+<span class="fc" id="L518">        return interactablesInRange;</span>
+    }
+
+    // USE FOR NON-WALL COLLISIONS, I.E ITEMS OR ROOM TRANSITIONS
+    private void triggerCollisionCheck(Rectangle pRect) {
+
+<span class="fc bfc" id="L524" title="All 2 branches covered.">        for (Rectangle tileRect : mapExitForwardCollisions) {</span>
+<span class="pc bpc" id="L525" title="1 of 2 branches missed.">            if (pRect.overlaps(tileRect)) {</span>
+<span class="nc bnc" id="L526" title="All 2 branches missed.">                if (currentLevel.getNextLevel() != null) {</span>
+<span class="nc" id="L527">                    switchToLevel(currentLevel.getNextLevel(),&quot;Forward&quot;);</span>
+                }
+                break;
+            }
+<span class="fc" id="L531">        }</span>
+
+        // If on LibraryFloor3 and no ExitForward layer exists, check if player is at end position
+        // and automatically transition to BusLevel
+<span class="pc bpc" id="L535" title="1 of 4 branches missed.">        if (currentLevel.getMapName().equals(&quot;maps/libraryfloor3.tmx&quot;) &amp;&amp; mapExitForwardCollisions.isEmpty()) {</span>
+<span class="nc" id="L536">            int endX = currentLevel.getEndX();</span>
+<span class="nc" id="L537">            int endY = currentLevel.getEndY();</span>
+<span class="nc bnc" id="L538" title="All 4 branches missed.">            if (endX &gt;= 0 &amp;&amp; endY &gt;= 0) {</span>
+<span class="nc" id="L539">                Rectangle endRect = new Rectangle(endX, endY, 1, 1);</span>
+<span class="nc bnc" id="L540" title="All 4 branches missed.">                if (pRect.overlaps(endRect) &amp;&amp; currentLevel.getNextLevel() != null) {</span>
+<span class="nc" id="L541">                    switchToLevel(currentLevel.getNextLevel(), &quot;Forward&quot;);</span>
+<span class="nc" id="L542">                    return;</span>
+                }
+            }
+        }
+
+<span class="fc bfc" id="L547" title="All 2 branches covered.">        for (Rectangle tileRect : mapExitSideCollisions) {</span>
+<span class="pc bpc" id="L548" title="1 of 2 branches missed.">            if (pRect.overlaps(tileRect)) {</span>
+<span class="nc bnc" id="L549" title="All 2 branches missed.">                if (currentLevel.getSideLevel() != null) {</span>
+<span class="nc" id="L550">                    switchToLevel(currentLevel.getSideLevel(),&quot;Side&quot;);</span>
+                }
+                break;
+            }
+<span class="fc" id="L554">        }</span>
+
+<span class="fc bfc" id="L556" title="All 2 branches covered.">        for (Rectangle tileRect : mapExitSide2Collisions) {</span>
+<span class="pc bpc" id="L557" title="1 of 2 branches missed.">            if (pRect.overlaps(tileRect)) {</span>
+<span class="nc bnc" id="L558" title="All 2 branches missed.">                if (currentLevel.getSide2Level() != null) {</span>
+<span class="nc" id="L559">                    switchToLevel(currentLevel.getSide2Level(),&quot;Side2&quot;);</span>
+                }
+                break;
+            }
+<span class="fc" id="L563">        }</span>
+
+<span class="fc bfc" id="L565" title="All 2 branches covered.">        for (Rectangle tileRect : mapExitBackCollisions) {</span>
+<span class="pc bpc" id="L566" title="1 of 2 branches missed.">            if (pRect.overlaps(tileRect)) {</span>
+<span class="nc bnc" id="L567" title="All 2 branches missed.">                if (currentLevel.getPrevLevel() != null) {</span>
+<span class="nc" id="L568">                    switchToLevel(currentLevel.getPrevLevel(),&quot;Back&quot;);</span>
+                }
+                break;
+            }
+<span class="fc" id="L572">        }</span>
+
+<span class="fc" id="L574">        boolean isSlowed = false;</span>
+<span class="fc bfc" id="L575" title="All 2 branches covered.">        for (Rectangle tileRect : mapSlowCollisions) {</span>
+<span class="fc bfc" id="L576" title="All 2 branches covered.">            if (pRect.overlaps(tileRect)) {</span>
+<span class="fc" id="L577">                isSlowed = true;</span>
+<span class="fc" id="L578">                player.getEventsCounter().slowedByWater();</span>
+<span class="fc" id="L579">                player.setHappiness(player.getHappiness() - Gdx.graphics.getDeltaTime() * 2); // Decrease happiness over time in water</span>
+<span class="fc" id="L580">                break;</span>
+            }
+<span class="fc" id="L582">        }</span>
+<span class="fc" id="L583">        player.setSlowedByWater(isSlowed);</span>
+
+<span class="fc" id="L585">    }</span>
+
+    // USED FOR MOVEMENT BASED WALL COLLISIONS ONLY
+    // Checks the collision layer against the parameter rectangle,
+    // returns TRUE if there is a collision, FALSE otherwise.
+    private boolean wallCollisionCheck(Rectangle pRect) {
+
+        // Iterate over every tile in our already made collision map and check if it intersects pRect
+        // return TRUE if there is an overlap
+<span class="fc bfc" id="L594" title="All 2 branches covered.">        for (Rectangle tileRect : mapCollisions) {</span>
+            // If this rectangle overlaps our player's then return true.
+<span class="fc bfc" id="L596" title="All 2 branches covered.">            if (pRect.overlaps(tileRect)) {</span>
+<span class="fc" id="L597">                return true;</span>
+            }
+<span class="fc" id="L599">        }</span>
+        // No collision was detected, so we can return false.
+<span class="fc" id="L601">        return false;</span>
+    }
+
+    // wtf is this
+    public void logic() {
+<span class="fc" id="L606">        player.getGameTimer().tick(); // So that the timer counts down</span>
+
+<span class="fc bfc" id="L608" title="All 2 branches covered.">        if (player.getGameTimer().hasCompleted()) {</span>
+<span class="fc" id="L609">            WinOrLose = &quot;Lose&quot;;</span>
+<span class="fc" id="L610">            gameEnded = true;</span>
+<span class="fc" id="L611">            return;</span>
+        }
+
+        // store the worldWidth and worldHeight as local variables for brevity
+<span class="fc" id="L615">        float worldWidth = viewport.getWorldWidth();</span>
+<span class="fc" id="L616">        float worldHeight = viewport.getWorldHeight();</span>
+
+        // clamp x to values 0 and worldWidth -- subtract the bucketWidth
+<span class="fc" id="L619">        player.getMoneySprite().setX(MathUtils.clamp(player.getMoneySprite().getX(), 0,</span>
+<span class="fc" id="L620">            worldWidth - player.getMoneyWidth()));</span>
+        // clamp y vals
+<span class="fc" id="L622">        player.getMoneySprite().setY(MathUtils.clamp(player.getMoneySprite().getY(), 0,</span>
+<span class="fc" id="L623">            worldHeight - player.getMoneyHeight()));</span>
+
+        // Player rectangle constructed for collision logic in levels.
+        //Rectangle playerRectangle = new Rectangle(moneySprite.getX(), moneySprite.getY(), 1, 1);
+
+<span class="fc" id="L628">        float delta = Gdx.graphics.getDeltaTime();</span>
+        // Updates the level entities.
+<span class="fc" id="L630">        currentLevel.update(delta, this.player);</span>
+
+<span class="pc bpc" id="L632" title="1 of 4 branches missed.">        if (player.getTotalCoinsCollected() == 12 &amp;&amp; !player.getEventsCounter().hasCollectedAllCoins()) {</span>
+<span class="fc" id="L633">            Notification allCoinsNotification = new Notification(</span>
+                &quot;Collected all coins&quot;,
+                5,
+                NotificationType.ACHIEVEMENT,
+<span class="fc" id="L637">                textureManager.getGameSmallFont()</span>
+            );
+<span class="fc" id="L639">            hud.getNotificationManager().addNotification(allCoinsNotification);</span>
+<span class="fc" id="L640">            player.getEventsCounter().collectedAllCoins();</span>
+        }
+
+<span class="fc bfc" id="L643" title="All 2 branches covered.">        if (player.getTotalSpeedPowerupsCollected() == 2 &amp;&amp;</span>
+<span class="pc bpc" id="L644" title="1 of 2 branches missed.">            player.getInventory().hasItem(InventoryObject.ENERGY_DRINK) &amp;&amp;</span>
+<span class="pc bpc" id="L645" title="1 of 2 branches missed.">            player.getInventory().hasItem(InventoryObject.ROLLERBLADES) &amp;&amp;</span>
+<span class="pc bpc" id="L646" title="1 of 2 branches missed.">            !player.getEventsCounter().hasCollectedAllPowerUps()) {</span>
+<span class="fc" id="L647">            Notification allPowerupsNotification = new Notification(</span>
+                &quot;Collected all power-ups&quot;,
+                5,
+                NotificationType.ACHIEVEMENT,
+<span class="fc" id="L651">                textureManager.getGameSmallFont()</span>
+            );
+<span class="fc" id="L653">            hud.getNotificationManager().addNotification(allPowerupsNotification);</span>
+<span class="fc" id="L654">            player.getEventsCounter().collectedAllPowerUps();</span>
+        }
+
+<span class="fc bfc" id="L657" title="All 2 branches covered.">        if (player.getEventsCounter().hasCollectedAllPowerUps() &amp;&amp;</span>
+<span class="fc bfc" id="L658" title="All 2 branches covered.">            player.getEventsCounter().hasCollectedAllCoins() &amp;&amp;</span>
+<span class="pc bpc" id="L659" title="1 of 2 branches missed.">            player.getEventsCounter().hasMadeItToBusStop() &amp;&amp;</span>
+<span class="pc bpc" id="L660" title="1 of 2 branches missed.">            player.getEventsCounter().getHasExitLibraryAchieved() &amp;&amp;</span>
+<span class="pc bpc" id="L661" title="1 of 2 branches missed.">            player.getEventsCounter().getHasLongBoiPet() &amp;&amp;</span>
+<span class="pc bpc" id="L662" title="1 of 2 branches missed.">            !player.getEventsCounter().hasCompletedGame()) {</span>
+<span class="fc" id="L663">            Notification completedGameNotification = new Notification(</span>
+                &quot;You 100% completed the game!&quot;,
+                5,
+                NotificationType.ACHIEVEMENT,
+<span class="fc" id="L667">                textureManager.getGameSmallFont()</span>
+            );
+<span class="fc" id="L669">            hud.getNotificationManager().addNotification(completedGameNotification);</span>
+<span class="fc" id="L670">            player.getEventsCounter().completedGame();</span>
+        }
+
+        //Rectangle playerRect = new Rectangle(moneySprite.getX(), moneySprite.getY(), 1, 1);
+//        boolean collided = currentLevel.collides(player);
+//        if (collided) {
+//            // If we're on the BusLevel and the player has reached the bus, game terminates.
+//            if (currentLevel instanceof R07_BusLevel) {
+//                if (currentLevel.getPrevLevel() != null) {
+//                    Gdx.app.exit();
+//                }
+//            } else {
+//                // Generic collision handling for other levels
+//                this.player.getGameTimer().removeTime(2F);
+//            }
+//        }
+        // apply the bucket position and size to the bucket rectangle
+
+<span class="fc" id="L688">    }</span>
+
+    public void draw(SpriteBatch masterBatch, FitViewport masterViewport) {
+<span class="nc" id="L691">        ScreenUtils.clear(Color.BLACK);</span>
+<span class="nc" id="L692">        viewport.apply();</span>
+<span class="nc" id="L693">        spriteBatch.setProjectionMatrix(viewport.getCamera().combined);</span>
+<span class="nc" id="L694">        mapRenderer.render();</span>
+
+<span class="nc" id="L696">        stateTime += Gdx.graphics.getDeltaTime()*0.25f; // Accumulate elapsed animation time</span>
+
+<span class="nc" id="L698">        spriteBatch.begin();</span>
+
+        // Long boi pet colour effect when spawned
+<span class="nc bnc" id="L701" title="All 4 branches missed.">        if (Math.abs(player.getStartTimeLongBoiPet() - System.currentTimeMillis()) &lt; 5000 &amp;&amp; player.getStartTimeLongBoiPet() &gt; 0) {</span>
+<span class="nc" id="L702">            double timeSinceStart = (System.currentTimeMillis() - player.getStartTimeLongBoiPet()) / 1000.0;</span>
+<span class="nc" id="L703">            double colourOffset = 0.5 * Math.sin((timeSinceStart * Math.PI) / 5);</span>
+<span class="nc" id="L704">            spriteBatch.setColor(1.0f, (float) (1.0 - colourOffset), (float) (1.0 - colourOffset), 1.0f);</span>
+<span class="nc" id="L705">            mapRenderer.getBatch().setColor(1.0f, (float) (1.0 - colourOffset), (float) (1.0 - colourOffset), 1.0f);</span>
+        }
+
+        // Draws the level entities.
+<span class="nc" id="L709">        currentLevel.draw((SpriteBatch) spriteBatch);</span>
+
+<span class="nc bnc" id="L711" title="All 2 branches missed.">        for (InteractableEntity entity : currentLevel.getLevelInteractableEntities()) {</span>
+<span class="nc bnc" id="L712" title="All 2 branches missed.">            if (entity.isAbovePlayer()) {</span>
+<span class="nc" id="L713">                continue;</span>
+            }
+<span class="nc" id="L715">            entity.render((SpriteBatch) spriteBatch);</span>
+<span class="nc" id="L716">        }</span>
+
+        TextureRegion currentFrame;
+
+<span class="nc bnc" id="L720" title="All 2 branches missed.">        if (Objects.equals(player.getMoveDirection(), &quot;Stationary&quot;)) {</span>
+<span class="nc" id="L721">            currentFrame = player.getStationaryAnimation().getKeyFrame(stateTime, true);</span>
+<span class="nc bnc" id="L722" title="All 2 branches missed.">        } else if (Objects.equals(player.getMoveDirection(), &quot;Down&quot;)) {</span>
+<span class="nc" id="L723">            currentFrame = player.getDownAnimation().getKeyFrame(stateTime, true);</span>
+<span class="nc bnc" id="L724" title="All 2 branches missed.">        } else if (Objects.equals(player.getMoveDirection(), &quot;Up&quot;)) {</span>
+<span class="nc" id="L725">            currentFrame = player.getUpAnimation().getKeyFrame(stateTime, true);</span>
+        } else {
+<span class="nc" id="L727">            currentFrame = player.getRightAnimation().getKeyFrame(stateTime, true);</span>
+        }
+
+<span class="nc bnc" id="L730" title="All 2 branches missed.">        if (Objects.equals(player.getMoveDirection(), &quot;Left&quot;)) {</span>
+<span class="nc" id="L731">            spriteBatch.draw(currentFrame, player.getMoneySprite().getX() + player.getMoneyWidth() / 2 + 1.3f, player.getMoneySprite().getY() - player.getMoneyHeight() / 2 - 0.25f, -2.5f, 2.5f);</span>
+        } else {
+<span class="nc" id="L733">            spriteBatch.draw(currentFrame, player.getMoneySprite().getX() - player.getMoneyWidth() / 2 - 0.3f, player.getMoneySprite().getY() - player.getMoneyHeight() / 2 - 0.25f, 2.5f, 2.5f);</span>
+        }
+        //moneySprite.draw(spriteBatch); // Draw the character
+
+<span class="nc" id="L737">        player.getLbPet().render((SpriteBatch) spriteBatch);</span>
+
+<span class="nc bnc" id="L739" title="All 2 branches missed.">        for (InteractableEntity entity : currentLevel.getLevelInteractableEntities()) {</span>
+<span class="nc bnc" id="L740" title="All 2 branches missed.">            if (!entity.isAbovePlayer()) {</span>
+<span class="nc" id="L741">                continue;</span>
+            }
+<span class="nc" id="L743">            entity.render((SpriteBatch) spriteBatch);</span>
+<span class="nc" id="L744">        }</span>
+
+<span class="nc bnc" id="L746" title="All 2 branches missed.">        for (Collectible coin : currentLevel.getLevelCoins()) {</span>
+<span class="nc bnc" id="L747" title="All 2 branches missed.">            if (!(coin.isCollected())) {</span>
+<span class="nc" id="L748">                coin.render((SpriteBatch) spriteBatch);</span>
+            }
+<span class="nc bnc" id="L750" title="All 4 branches missed.">            else if (coin.isCollected() &amp;&amp; coin.getCollectibleAdded()) {</span>
+            }
+<span class="nc bnc" id="L752" title="All 2 branches missed.">            else if (coin.isCollected()) {</span>
+<span class="nc" id="L753">                this.player.addCoins(1);</span>
+<span class="nc" id="L754">                coin.setCollectibleAdded(true);</span>
+            }
+<span class="nc" id="L756">        }</span>
+
+        // OK this is impossible.
+<span class="nc bnc" id="L759" title="All 2 branches missed.">        for (SpeedPowerup planet : currentLevel.getLevelPowerups()) {</span>
+<span class="nc bnc" id="L760" title="All 2 branches missed.">            if (!(planet.isCollected())) {</span>
+<span class="nc" id="L761">                planet.render((SpriteBatch) spriteBatch);</span>
+            }
+<span class="nc bnc" id="L763" title="All 4 branches missed.">            else if (planet.isCollected() &amp;&amp; planet.isSpeedPowerUpAdded()) {</span>
+            }
+<span class="nc bnc" id="L765" title="All 2 branches missed.">            else if (planet.isCollected()) {</span>
+<span class="nc" id="L766">                planet.setSpeedPowerUpAdded(true);</span>
+            }
+<span class="nc" id="L768">        }</span>
+
+<span class="nc bnc" id="L770" title="All 2 branches missed.">        for (Enemy enemy : currentLevel.getLevelEnemies()) {</span>
+<span class="nc bnc" id="L771" title="All 2 branches missed.">            if (!(enemy.isDead())) {</span>
+<span class="nc" id="L772">                enemy.render((SpriteBatch) spriteBatch);</span>
+            }
+<span class="nc" id="L774">        }</span>
+
+<span class="nc" id="L776">        player.getInventory().render((SpriteBatch) spriteBatch, camera);</span>
+
+<span class="nc bnc" id="L778" title="All 2 branches missed.">        for (InteractableEntity entity : getInteractableInRange(</span>
+<span class="nc" id="L779">            player.getMoneySprite().getX() + player.getMoneyWidth() / 2,</span>
+<span class="nc" id="L780">            player.getMoneySprite().getY() + player.getMoneyHeight() / 2)) {</span>
+<span class="nc" id="L781">            entity.withinInteractionRadius(player, currentLevel, (SpriteBatch) spriteBatch);</span>
+<span class="nc" id="L782">        }</span>
+
+<span class="nc" id="L784">        spriteBatch.end();</span>
+
+<span class="nc bnc" id="L786" title="All 2 branches missed.">        if (shopActive) {</span>
+<span class="nc" id="L787">            textureManager.getShopUIObject().drawShopMenu(</span>
+                masterViewport,
+                masterBatch,
+<span class="nc" id="L790">                textureManager.getShopIconSprite(),</span>
+<span class="nc" id="L791">                textureManager.getBuyEDSprite(),</span>
+<span class="nc" id="L792">                textureManager.getBuyBFSprite(),</span>
+<span class="nc" id="L793">                textureManager.getShopFont(),</span>
+<span class="nc" id="L794">                textureManager.getMainLayout()</span>
+            );
+<span class="nc" id="L796">            textureManager.getShopUIObject().inputShopMenu(</span>
+                this,
+                masterViewport,
+                player
+            );
+        }
+
+        // Draw the ui after this spritebatch as we use a separate viewport / camera
+<span class="nc" id="L804">        hud.render(masterBatch);</span>
+<span class="nc" id="L805">    }</span>
+
+    public void pause() {
+        // Invoked when your application is paused.
+<span class="nc" id="L809">    }</span>
+
+    public void resume() {
+        // Invoked when your application is resumed after pause.
+<span class="nc" id="L813">    }</span>
+
+    public void dispose() {
+        // Destroy application's resources here.
+<span class="nc" id="L817">        textureManager.dispose();</span>
+<span class="nc" id="L818">    }</span>
+
+    public TextureManager getTextureManager() {
+<span class="fc" id="L821">        return textureManager;</span>
+    }
+
+    public ArrayList&lt;Level&gt; getLevels() {
+<span class="fc" id="L825">        return levels;</span>
+    }
+
+    public float getMinimapTileSize() {
+<span class="nc" id="L829">        return minimapTileSize;</span>
+    }
+
+    public HUD getHud() {
+<span class="fc" id="L833">        return hud;</span>
+    }
+
+    public OrthographicCamera getCamera() {
+<span class="nc" id="L837">        return camera;</span>
+    }
+
+    /**
+     * Calculate the distance from a point to the nearest edge of an entity's bounding box.
+     * &lt;br&gt;
+     * &lt;br&gt;
+     * &lt;b&gt;CREDITS: &lt;a href=&quot;https://stackoverflow.com/questions/5254838/calculating-distance-between-a-point-and-a-rectangular-box-nearest-point&quot;&gt;StackOverflow&lt;/a&gt;&lt;/b&gt;
+     *
+     * @param entityBBox the bounding box of the entity in tile coordinates [x, y, width, height]
+     * @param tileX1 the x coordinate of the point in tile units
+     * @param tileY1 the y coordinate of the point in tile units
+     * @return the distance from the point to the nearest edge of the bounding box
+     */
+    public static double distanceFromBBox(float[] entityBBox, float tileX1, float tileY1) {
+<span class="fc" id="L852">        float rx_min = entityBBox[0];</span>
+<span class="fc" id="L853">        float rx_max = entityBBox[0] + entityBBox[2];</span>
+<span class="fc" id="L854">        float ry_min = entityBBox[1];</span>
+<span class="fc" id="L855">        float ry_max = entityBBox[1] + entityBBox[3];</span>
+
+<span class="pc bpc" id="L857" title="2 of 8 branches missed.">        if (rx_min &lt;= tileX1 &amp;&amp; tileX1 &lt;= rx_max &amp;&amp; ry_min &lt;= tileY1 &amp;&amp; tileY1 &lt;= ry_max) {</span>
+<span class="fc" id="L858">            return Math.min(Math.min(tileX1 - rx_min, rx_max - tileX1), Math.min(tileY1 - ry_min, ry_max - tileY1));</span>
+        }
+
+<span class="fc" id="L861">        double dx = Math.max(0, Math.max(rx_min - tileX1, tileX1 - rx_max));</span>
+<span class="fc" id="L862">        double dy = Math.max(0, Math.max(ry_min - tileY1, tileY1 - ry_max));</span>
+<span class="fc" id="L863">        return Math.sqrt(dx*dx + dy*dy);</span>
+    }
+
+    public GameDifficulty getGameDifficulty() {
+<span class="fc" id="L867">        return gameDifficulty;</span>
+    }
+
+    public Main getMainApp() {
+<span class="fc" id="L871">        return mainApp;</span>
+    }
+
+    public SpriteBatch getSpriteBatch() {
+<span class="nc" id="L875">        return (SpriteBatch) spriteBatch;</span>
+    }
+
+    public int getScore() {
+<span class="fc" id="L879">        return Math.toIntExact(Math.round(</span>
+<span class="fc" id="L880">            10 * player.getTotalCoinsCollected() +</span>
+<span class="fc" id="L881">            20 * player.getTotalSpeedPowerupsCollected() +</span>
+<span class="fc" id="L882">            player.getHappiness() +</span>
+<span class="fc" id="L883">            player.getGameTimer().getSecsRemaining() +</span>
+            (
+<span class="fc bfc" id="L885" title="All 2 branches covered.">                gameDifficulty == GameDifficulty.EASY ? 0 :</span>
+<span class="fc bfc" id="L886" title="All 2 branches covered.">                gameDifficulty == GameDifficulty.NORMAL ? 50 :</span>
+<span class="pc bpc" id="L887" title="1 of 2 branches missed.">                gameDifficulty == GameDifficulty.HARD ? 100 :</span>
+<span class="pc bpc" id="L888" title="1 of 2 branches missed.">                gameDifficulty == GameDifficulty.IMPOSSIBLE ? 150 : 0</span>
+            ) +
+<span class="fc bfc" id="L890" title="All 2 branches covered.">            (player.getInventory().hasItem(InventoryObject.ROLLERBLADES) ? 50 : 0) +</span>
+<span class="fc bfc" id="L891" title="All 2 branches covered.">            (player.getInventory().hasItem(InventoryObject.ENERGY_DRINK) ? 50 : 0) +</span>
+<span class="fc bfc" id="L892" title="All 2 branches covered.">            (player.getEventsCounter().hasCompletedGame() ? 200 : 0)</span>
+        ));
+    }
+
+    public Level getCurrentLevel() {
+<span class="fc" id="L897">        return currentLevel;</span>
+    }
+
+    public void setGameDifficulty(GameDifficulty gameDifficulty) {
+<span class="fc" id="L901">        this.gameDifficulty = gameDifficulty;</span>
+<span class="fc" id="L902">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

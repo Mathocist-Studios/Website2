@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TextureManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni</a> &gt; <span class="el_source">TextureManager.java</span></div><h1>TextureManager.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.utils.SharedLibraryLoadRuntimeException;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.mathochiststudios.escapefromuni.UI.ShopUI;
+
+
+/**
+ * TextureManager is responsible for managing and loading all textures, sprites, fonts,
+ * and other graphical assets used in the game.
+ *
+ * This was added to improve code organization and separate graphical asset management
+ * since the last team's Main class was horrible.
+ */
+public class TextureManager {
+
+    private BitmapFont mainFont;
+    private GlyphLayout mainLayout;
+
+    private BitmapFont gameLargeFont;
+    private BitmapFont gameSmallFont;
+    private BitmapFont gameMediumFont;
+
+    private Texture playButtonTexture;
+    private Texture returnToMenuButtonTexture;
+    private Texture resumeButtonTexture;
+
+
+    private Texture menuText;
+    private Texture pausedText;
+
+<span class="fc" id="L40">    private ShopUI shopUIObject = new ShopUI();</span>
+    private Texture shopIconTexture;
+    private Sprite shopIconSprite;
+    private Texture buyEDTexture;
+    private Sprite  buyEDSprite;
+    private Texture buyBFTexture;
+    private Sprite buyBFSprite;
+
+    private BitmapFont shopFont;
+
+    private Sound coinSound;
+    private Sprite coinSprite;
+    private Texture coinTexture;
+    private Sound planetSound;
+    private Sprite planetSprite;
+    private Texture planetTexture;
+    private Sound duckSound;
+    private Sound duckSound2;
+    private Texture duckTexture;
+    private Texture duckSpeechBubbleTexture;
+
+    public Music bgm;
+
+<span class="fc" id="L63">    public TextureManager(FitViewport viewport) {</span>
+
+        // Initialize textures, sprites, fonts, and other graphical assets here
+<span class="fc" id="L66">        mainLayout = new GlyphLayout();</span>
+
+        try {
+<span class="nc" id="L69">            this.generateFonts();</span>
+<span class="nc" id="L70">            gameLargeFont = this.genMainFont(90);</span>
+<span class="nc" id="L71">            gameSmallFont = this.genMainFont(30);</span>
+<span class="nc" id="L72">            gameMediumFont = this.genMainFont(50);</span>
+<span class="fc" id="L73">        } catch (SharedLibraryLoadRuntimeException e) {</span>
+<span class="fc" id="L74">            mainFont = null;</span>
+<span class="fc" id="L75">            shopFont = null;</span>
+<span class="fc" id="L76">            gameLargeFont = null;</span>
+<span class="fc" id="L77">            gameSmallFont = null;</span>
+<span class="fc" id="L78">            gameMediumFont = null;</span>
+<span class="nc" id="L79">        }</span>
+
+<span class="fc" id="L81">        menuText = new Texture(&quot;escapefromunititle.png&quot;);</span>
+<span class="fc" id="L82">        pausedText = new Texture(&quot;pausedtext.png&quot;);</span>
+
+        //seperate shop UI
+<span class="fc" id="L85">        shopIconTexture = new Texture(&quot;shop290x248.png&quot;);</span>
+<span class="fc" id="L86">        shopIconSprite = new Sprite(shopIconTexture);</span>
+<span class="fc" id="L87">        shopIconSprite.setSize( 290, 248);</span>
+<span class="fc" id="L88">        shopIconSprite.setPosition(800, 700);</span>
+
+<span class="fc" id="L90">        buyEDTexture = new Texture(&quot;BuyEnergyDrink.png&quot;);</span>
+<span class="fc" id="L91">        buyEDSprite = new Sprite(buyEDTexture);</span>
+        //buyEDSprite.setSize(290,120);
+<span class="fc" id="L93">        buyEDSprite.setPosition(viewport.getWorldWidth()/2, 450);</span>
+
+<span class="fc" id="L95">        buyBFTexture = new Texture(&quot;BuyBirdFeed.png&quot;);</span>
+<span class="fc" id="L96">        buyBFSprite = new Sprite(buyBFTexture);</span>
+        //buyBFSprite.setSize(290,120);
+<span class="fc" id="L98">        buyBFSprite.setPosition(viewport.getWorldWidth()/2, 250);</span>
+
+<span class="fc" id="L100">        coinSound = Gdx.audio.newSound(Gdx.files.internal(&quot;coin-drop-422703.mp3&quot;));</span>
+<span class="fc" id="L101">        coinTexture = new Texture(&quot;Custom_coin_sprite.png&quot;);</span>
+<span class="fc" id="L102">        coinSprite = new Sprite(coinTexture);</span>
+
+<span class="fc" id="L104">        planetSound = Gdx.audio.newSound(Gdx.files.internal(&quot;laser-90052.mp3&quot;));</span>
+<span class="fc" id="L105">        planetTexture = new Texture(&quot;Neptune_planet_v2.png&quot;);</span>
+<span class="fc" id="L106">        planetSprite = new Sprite(planetTexture);</span>
+
+<span class="fc" id="L108">        duckSound = Gdx.audio.newSound(Gdx.files.internal(&quot;duck-quack-112941.mp3&quot;));</span>
+<span class="fc" id="L109">        duckSound2 = Gdx.audio.newSound(Gdx.files.internal(&quot;short-beep-351721.mp3&quot;));</span>
+<span class="fc" id="L110">        duckTexture = new Texture(&quot;custom_duck.png&quot;);</span>
+<span class="fc" id="L111">        duckSpeechBubbleTexture = new Texture(&quot;Custom_speech_bubble_v2.png&quot;);</span>
+
+<span class="fc" id="L113">        bgm = Gdx.audio.newMusic(Gdx.files.internal(&quot;EscapeAdventure.ogg&quot;));</span>
+<span class="fc" id="L114">    }</span>
+
+    public BitmapFont genMainFont(int size) {
+<span class="nc" id="L117">        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(&quot;fonts/Jersey25-Regular.ttf&quot;));</span>
+<span class="nc" id="L118">        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();</span>
+<span class="nc" id="L119">        parameter.size = size;</span>
+<span class="nc" id="L120">        parameter.borderWidth = 1;</span>
+<span class="nc" id="L121">        parameter.borderColor = com.badlogic.gdx.graphics.Color.BLACK;</span>
+<span class="nc" id="L122">        parameter.color = com.badlogic.gdx.graphics.Color.WHITE;</span>
+<span class="nc" id="L123">        parameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear; // smooth scaling up</span>
+<span class="nc" id="L124">        parameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear; // smooth scaling down</span>
+<span class="nc" id="L125">        BitmapFont tempFont = generator.generateFont(parameter);</span>
+<span class="nc" id="L126">        generator.dispose();</span>
+<span class="nc" id="L127">        return tempFont;</span>
+    }
+
+    private void generateFonts() {
+<span class="nc" id="L131">        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(&quot;Fonts/Jersey25-Regular.ttf&quot;));</span>
+<span class="nc" id="L132">        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();</span>
+<span class="nc" id="L133">        parameter.size = 128;</span>
+<span class="nc" id="L134">        parameter.borderWidth = 1;</span>
+<span class="nc" id="L135">        parameter.borderColor = com.badlogic.gdx.graphics.Color.BLACK;</span>
+<span class="nc" id="L136">        parameter.color = com.badlogic.gdx.graphics.Color.WHITE;</span>
+<span class="nc" id="L137">        parameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear; // smooth scaling up</span>
+<span class="nc" id="L138">        parameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear; // smooth scaling down</span>
+<span class="nc" id="L139">        mainFont = generator.generateFont(parameter);</span>
+<span class="nc" id="L140">        parameter.size = 40;</span>
+<span class="nc" id="L141">        shopFont = generator.generateFont(parameter);</span>
+<span class="nc" id="L142">        generator.dispose();</span>
+<span class="nc" id="L143">    }</span>
+
+    public BitmapFont getMainFont() {
+<span class="nc" id="L146">        return mainFont;</span>
+    }
+
+    public void setMainFont(BitmapFont mainFont) {
+<span class="nc" id="L150">        this.mainFont = mainFont;</span>
+<span class="nc" id="L151">    }</span>
+
+    public GlyphLayout getMainLayout() {
+<span class="nc" id="L154">        return mainLayout;</span>
+    }
+
+    public void setMainLayout(GlyphLayout mainLayout) {
+<span class="nc" id="L158">        this.mainLayout = mainLayout;</span>
+<span class="nc" id="L159">    }</span>
+
+    public ShopUI getShopUIObject() {
+<span class="nc" id="L162">        return shopUIObject;</span>
+    }
+
+    public void setShopUIObject(ShopUI shopUIObject) {
+<span class="nc" id="L166">        this.shopUIObject = shopUIObject;</span>
+<span class="nc" id="L167">    }</span>
+
+    public Texture getShopIconTexture() {
+<span class="nc" id="L170">        return shopIconTexture;</span>
+    }
+
+    public void setShopIconTexture(Texture shopIconTexture) {
+<span class="nc" id="L174">        this.shopIconTexture = shopIconTexture;</span>
+<span class="nc" id="L175">    }</span>
+
+    public Sprite getShopIconSprite() {
+<span class="nc" id="L178">        return shopIconSprite;</span>
+    }
+
+    public void setShopIconSprite(Sprite shopIconSprite) {
+<span class="nc" id="L182">        this.shopIconSprite = shopIconSprite;</span>
+<span class="nc" id="L183">    }</span>
+
+    public Texture getBuyEDTexture() {
+<span class="nc" id="L186">        return buyEDTexture;</span>
+    }
+
+    public void setBuyEDTexture(Texture buyEDTexture) {
+<span class="nc" id="L190">        this.buyEDTexture = buyEDTexture;</span>
+<span class="nc" id="L191">    }</span>
+
+    public Sprite getBuyEDSprite() {
+<span class="nc" id="L194">        return buyEDSprite;</span>
+    }
+
+    public void setBuyEDSprite(Sprite buyEDSprite) {
+<span class="nc" id="L198">        this.buyEDSprite = buyEDSprite;</span>
+<span class="nc" id="L199">    }</span>
+
+    public Texture getBuyBFTexture() {
+<span class="nc" id="L202">        return buyBFTexture;</span>
+    }
+
+    public void setBuyBFTexture(Texture buyBFTexture) {
+<span class="nc" id="L206">        this.buyBFTexture = buyBFTexture;</span>
+<span class="nc" id="L207">    }</span>
+
+    public Sprite getBuyBFSprite() {
+<span class="nc" id="L210">        return buyBFSprite;</span>
+    }
+
+    public void setBuyBFSprite(Sprite buyBFSprite) {
+<span class="nc" id="L214">        this.buyBFSprite = buyBFSprite;</span>
+<span class="nc" id="L215">    }</span>
+
+    public BitmapFont getShopFont() {
+<span class="nc" id="L218">        return shopFont;</span>
+    }
+
+    public void setShopFont(BitmapFont shopfont) {
+<span class="nc" id="L222">        this.shopFont = shopfont;</span>
+<span class="nc" id="L223">    }</span>
+
+    public BitmapFont getGameLargeFont() {
+<span class="nc" id="L226">        return gameLargeFont;</span>
+    }
+
+    public BitmapFont getGameMediumFont() {
+<span class="nc" id="L230">        return gameMediumFont;</span>
+    }
+
+    public BitmapFont getGameSmallFont() {
+<span class="fc" id="L234">        return gameSmallFont;</span>
+    }
+
+    public Sound getCoinSound() {
+<span class="fc" id="L238">        return coinSound;</span>
+    }
+
+    public Sprite getCoinSprite() {
+<span class="nc" id="L242">        return coinSprite;</span>
+    }
+
+    public Texture getCoinTexture() {
+<span class="fc" id="L246">        return coinTexture;</span>
+    }
+
+    public Sound getPlanetSound() {
+<span class="fc" id="L250">        return planetSound;</span>
+    }
+
+    public Sprite getPlanetSprite() {
+<span class="nc" id="L254">        return planetSprite;</span>
+    }
+
+    public Texture getPlanetTexture() {
+<span class="fc" id="L258">        return planetTexture;</span>
+    }
+
+    public Sound getDuckSound() {
+<span class="nc" id="L262">        return duckSound;</span>
+    }
+
+    public Sound getDuckSound2() {
+<span class="nc" id="L266">        return duckSound2;</span>
+    }
+
+    public Texture getDuckTexture() {
+<span class="nc" id="L270">        return duckTexture;</span>
+    }
+
+    public Texture getDuckSpeechBubbleTexture() {
+<span class="nc" id="L274">        return duckSpeechBubbleTexture;</span>
+    }
+
+    public Music getBgm() {
+<span class="nc" id="L278">        return bgm;</span>
+    }
+
+    public void setBgm(Music bgm) {
+<span class="fc" id="L282">        this.bgm = bgm;</span>
+<span class="fc" id="L283">    }</span>
+
+    public void dispose() {
+        // Dispose of all textures, sprites, fonts, and other graphical assets here
+<span class="nc bnc" id="L287" title="All 2 branches missed.">        if (mainFont != null) {</span>
+<span class="nc" id="L288">            mainFont.dispose();</span>
+<span class="nc" id="L289">            shopFont.dispose();</span>
+        }
+
+<span class="nc" id="L292">        playButtonTexture.dispose();</span>
+<span class="nc" id="L293">        returnToMenuButtonTexture.dispose();</span>
+<span class="nc" id="L294">        resumeButtonTexture.dispose();</span>
+<span class="nc" id="L295">        menuText.dispose();</span>
+<span class="nc" id="L296">        pausedText.dispose();</span>
+<span class="nc" id="L297">        shopIconTexture.dispose();</span>
+<span class="nc" id="L298">        buyEDTexture.dispose();</span>
+<span class="nc" id="L299">        buyBFTexture.dispose();</span>
+<span class="nc" id="L300">        coinSound.dispose();</span>
+<span class="nc" id="L301">        coinTexture.dispose();</span>
+<span class="nc" id="L302">        planetSound.dispose();</span>
+<span class="nc" id="L303">        planetTexture.dispose();</span>
+<span class="nc" id="L304">        duckSound.dispose();</span>
+<span class="nc" id="L305">        duckSound2.dispose();</span>
+<span class="nc" id="L306">        duckTexture.dispose();</span>
+<span class="nc" id="L307">        duckSpeechBubbleTexture.dispose();</span>
+<span class="nc" id="L308">        bgm.dispose();</span>
+<span class="nc" id="L309">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

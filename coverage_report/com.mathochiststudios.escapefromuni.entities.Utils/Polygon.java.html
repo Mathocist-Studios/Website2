@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Polygon.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.entities.Utils</a> &gt; <span class="el_source">Polygon.java</span></div><h1>Polygon.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.entities.Utils;
+
+import java.util.ArrayList;
+
+
+/**
+ * A simple polygon represented by an array of vertices.
+ * Primarily used for triangulation and point picking for the Duck AI.
+ *
+ * @param vertices An array of float arrays, where each float array represents a vertex (x, y).
+ */
+public record Polygon(float[][] vertices) {
+
+<span class="fc" id="L14">    public Polygon {</span>
+<span class="fc bfc" id="L15" title="All 2 branches covered.">        if (vertices.length &lt; 3) {</span>
+<span class="fc" id="L16">            throw new IllegalArgumentException(&quot;A polygon must have at least 3 vertices (6 float values).&quot;);</span>
+        }
+
+<span class="fc" id="L19">    }</span>
+
+    /**
+     * Check if the angle formed by three points is convex, taking polygon winding into account.
+     *
+     * @param prev The previous vertex.
+     * @param curr The current vertex.
+     * @param next The next vertex.
+     * @param orientationSign Sign of polygon orientation: +1 for CCW, -1 for CW.
+     * @return True if the angle is convex, false otherwise.
+     */
+    public static boolean isConvex(float[] prev, float[] curr, float[] next, float orientationSign) {
+        // cross product to determine if angle is convex
+        // pretty sure this is right
+<span class="fc" id="L33">        float crossProduct = (curr[0] - prev[0]) * (next[1] - curr[1]) - (curr[1] - prev[1]) * (next[0] - curr[0]);</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        return crossProduct * orientationSign &gt; 0f;</span>
+    }
+
+    /**
+     * Check if a point is inside a triangle formed by three vertices.
+     *
+     * &lt;br&gt;
+     * CREDITS: &lt;a href=&quot;https://stackoverflow.com/questions/2049582/how-to-determine-if-a-point-is-in-a-2d-triangle&quot;&gt;StackOverflow&lt;/a
+     *
+     * @param pt The point to check.
+     * @param v1 The first vertex of the triangle.
+     * @param v2 The second vertex of the triangle.
+     * @param v3 The third vertex of the triangle.
+     * @return True if the point is inside the triangle, false otherwise.
+     */
+    public static boolean pointInTriangle(float[] pt, float[] v1, float[] v2, float[] v3) {
+        // only lord knows
+<span class="fc" id="L51">        float dX = pt[0] - v3[0];</span>
+<span class="fc" id="L52">        float dY = pt[1] - v3[1];</span>
+<span class="fc" id="L53">        float dX21 = v3[0] - v2[0];</span>
+<span class="fc" id="L54">        float dY12 = v2[1] - v3[1];</span>
+<span class="fc" id="L55">        float D = dY12 * (v1[0] - v3[0]) + dX21 * (v1[1] - v3[1]);</span>
+<span class="fc" id="L56">        float s = dY12 * dX + dX21 * dY;</span>
+<span class="fc" id="L57">        float t = (v3[1] - v1[1]) * dX + (v1[0] - v3[0]) * dY;</span>
+<span class="fc bfc" id="L58" title="All 8 branches covered.">        if (D &lt; 0) return s &lt;= 0 &amp;&amp; t &lt;= 0 &amp;&amp; s + t &gt;= D;</span>
+<span class="pc bpc" id="L59" title="1 of 6 branches missed.">        return s &gt;= 0 &amp;&amp; t &gt;= 0 &amp;&amp; s + t &lt;= D;</span>
+    }
+
+    /**
+     * Compute signed area (positive for counter-clockwise winding).
+     *
+     * @param verts The vertices of the polygon.
+     * @return The signed area of the polygon.
+     */
+    public static float signedArea(float[][] verts) {
+<span class="fc" id="L69">        int n = verts.length;</span>
+<span class="fc" id="L70">        float sum = 0f;</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L72">            float[] a = verts[i];</span>
+<span class="fc" id="L73">            float[] b = verts[(i + 1) % n];</span>
+<span class="fc" id="L74">            sum += a[0] * b[1] - b[0] * a[1];</span>
+        }
+<span class="fc" id="L76">        return sum / 2f;</span>
+    }
+
+    public float signedArea() {
+<span class="nc" id="L80">        return signedArea(this.vertices);</span>
+    }
+
+    public static float area(float[][] verts) {
+<span class="nc" id="L84">        return Math.abs(signedArea(verts));</span>
+    }
+
+    public float area() {
+<span class="nc" id="L88">        return area(this.vertices);</span>
+    }
+
+    /**
+     * Triangulate the polygon using the ear clipping method.&lt;br&gt;
+     * Note: This method assumes the polygon is simple (no self-intersections).
+     * &lt;br&gt;
+     * UPDATED: Now handles both clockwise and counter-clockwise polygons by determining orientation.
+     * &lt;br&gt;&lt;br&gt;
+     * CREDITS: &lt;a href=&quot;https://www.google.com/search?q=ear+clipping+algorithm&quot;&gt;Google&lt;/a&gt;
+     *
+     * @return Array of triangles that make up the polygon.
+     */
+    public Triangle[] triangulate() {
+<span class="fc" id="L102">        ArrayList&lt;Triangle&gt; triangles = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L103">        Polygon poly = this;</span>
+
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        while (poly.vertices().length &gt; 3) {</span>
+<span class="fc" id="L106">            int n = poly.vertices().length; // number of vertices</span>
+<span class="fc" id="L107">            boolean earFound = false;</span>
+
+            // compute orientation sign for current polygon (+1 for CCW, -1 for CW)
+<span class="fc" id="L110">            float orient = signedArea(poly.vertices());</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">            float orientationSign = orient &gt;= 0 ? 1f : -1f;</span>
+
+            // find an ear
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">            for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L115">                float[] prev = poly.vertices()[(i - 1 + n) % n];</span>
+<span class="fc" id="L116">                float[] curr = poly.vertices()[i];</span>
+<span class="fc" id="L117">                float[] next = poly.vertices()[(i + 1) % n];</span>
+
+<span class="fc bfc" id="L119" title="All 2 branches covered.">                if (isConvex(prev, curr, next, orientationSign)) {</span>
+<span class="fc" id="L120">                    boolean isEar = true;</span>
+
+                    // check if any other vertex is inside the triangle
+<span class="fc bfc" id="L123" title="All 2 branches covered.">                    for (int j = 0; j &lt; n; j++) {</span>
+<span class="fc bfc" id="L124" title="All 6 branches covered.">                        if (j != (i - 1 + n) % n &amp;&amp; j != i &amp;&amp; j != (i + 1) % n) {</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">                            if (pointInTriangle(poly.vertices()[j], prev, curr, next)) {</span>
+<span class="fc" id="L126">                                isEar = false;</span>
+<span class="fc" id="L127">                                break;</span>
+                            }
+                        }
+                    }
+
+<span class="fc bfc" id="L132" title="All 2 branches covered.">                    if (!isEar) {</span>
+<span class="fc" id="L133">                        continue;</span>
+                    }
+
+<span class="fc" id="L136">                    triangles.add(new Triangle(new float[]{</span>
+                        prev[0], prev[1],
+                        curr[0], curr[1],
+                        next[0], next[1]
+                    }));
+
+                    // remove ear vertex from polygon
+<span class="fc" id="L143">                    float[][] newVertices = new float[n - 1][2];</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">                    for (int k = 0, idx = 0; k &lt; n; k++) {</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">                        if (k != i) {</span>
+<span class="fc" id="L146">                            newVertices[idx++] = poly.vertices()[k];</span>
+                        }
+                    }
+<span class="fc" id="L149">                    poly = new Polygon(newVertices);</span>
+<span class="fc" id="L150">                    earFound = true;</span>
+<span class="fc" id="L151">                    break;</span>
+                }
+            }
+
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">            if (!earFound) {</span>
+<span class="nc" id="L156">                throw new IllegalArgumentException(&quot;Polygon is not simple or has inconsistent winding and cannot be triangulated.&quot;);</span>
+            }
+<span class="fc" id="L158">        }</span>
+
+        // final triangle
+<span class="fc" id="L161">        triangles.add(new Triangle(new float[]{</span>
+<span class="fc" id="L162">            poly.vertices()[0][0], poly.vertices()[0][1],</span>
+<span class="fc" id="L163">            poly.vertices()[1][0], poly.vertices()[1][1],</span>
+<span class="fc" id="L164">            poly.vertices()[2][0], poly.vertices()[2][1]</span>
+        }));
+
+<span class="fc" id="L167">        return triangles.toArray(new Triangle[0]);</span>
+    }
+
+    /**
+     * Pick a random point inside the polygon.
+     * &lt;br&gt;&lt;br&gt;
+     * UPDATED: Now uses area-weighted random selection of triangles for uniform distribution.
+     *
+     * @return A float array representing the (x, y) coordinates of the point.
+     */
+    public float[] pickPointInPolygon() {
+<span class="fc" id="L178">        Triangle[] triangles = triangulate();</span>
+<span class="fc" id="L179">        double[] areas = new double[triangles.length];</span>
+<span class="fc" id="L180">        double totalArea = 0.0;</span>
+
+        // calculate areas of triangles and total area
+<span class="fc bfc" id="L183" title="All 2 branches covered.">        for (int i = 0; i &lt; triangles.length; i++) {</span>
+<span class="fc" id="L184">            areas[i] = triangles[i].getArea();</span>
+<span class="fc" id="L185">            totalArea += areas[i];</span>
+        }
+
+        // pick a triangle based on area weights
+<span class="fc" id="L189">        double rand = Math.random() * totalArea;</span>
+<span class="fc" id="L190">        double cumulativeArea = 0.0;</span>
+<span class="pc bpc" id="L191" title="1 of 2 branches missed.">        for (int i = 0; i &lt; triangles.length; i++) {</span>
+<span class="fc" id="L192">            cumulativeArea += areas[i];</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">            if (rand &lt;= cumulativeArea) {</span>
+                // pick a point in this triangle
+<span class="fc" id="L195">                return triangles[i].pickPointInTriangle();</span>
+            }
+        }
+
+<span class="nc" id="L199">        return triangles[triangles.length - 1].pickPointInTriangle();</span>
+    }
+
+    /**
+     * Check if a point is inside the polygon.
+     *
+     * @param point A float array representing the (x, y) coordinates of the point.
+     * @return True if the point is inside the polygon, false otherwise.
+     */
+    public boolean isPointInPolygon(float[] point) {
+<span class="fc" id="L209">        Triangle[] triangles = triangulate();</span>
+<span class="fc bfc" id="L210" title="All 2 branches covered.">        for (Triangle triangle : triangles) {</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">            if (pointInTriangle(point,</span>
+<span class="fc" id="L212">                new float[]{triangle.vertices()[0], triangle.vertices()[1]},</span>
+<span class="fc" id="L213">                new float[]{triangle.vertices()[2], triangle.vertices()[3]},</span>
+<span class="fc" id="L214">                new float[]{triangle.vertices()[4], triangle.vertices()[5]})) {</span>
+<span class="fc" id="L215">                return true;</span>
+            }
+        }
+<span class="fc" id="L218">        return false;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

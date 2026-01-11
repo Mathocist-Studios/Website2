@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AStarAI.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.entities.Enemy.EnemyAI</a> &gt; <span class="el_source">AStarAI.java</span></div><h1>AStarAI.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.entities.Enemy.EnemyAI;
+
+import com.mathochiststudios.escapefromuni.Game;
+import com.mathochiststudios.escapefromuni.entities.Enemy.Enemy;
+import com.mathochiststudios.escapefromuni.entities.Player;
+import com.mathochiststudios.escapefromuni.levels.Level;
+
+<span class="fc" id="L8">public class AStarAI implements IEnemyAI {</span>
+
+    /**
+     * Update the enemy's position to move towards the player using a simple greedy approach.
+     * &lt;br&gt;
+     * The enemy will attempt to move in the direction of the player, prioritizing horizontal or vertical movement
+     *
+     * @param game         The game instance.
+     * @param enemy        The enemy to update.
+     * @param deltaTime    The time elapsed since the last update.
+     * @param currentLevel The current level.
+     * @param player       The player instance.
+     * @param speed        The speed at which the enemy moves.
+     * @return The direction the enemy moved.
+     */
+    @Override
+    public EnemyMoveDirection update(Game game, Enemy enemy, float deltaTime, Level currentLevel, Player player, float speed) {
+<span class="fc" id="L25">        float enemyX = enemy.getEnemyX();</span>
+<span class="fc" id="L26">        float enemyY = enemy.getEnemyY();</span>
+
+<span class="fc" id="L28">        float playerX = player.getMoneySprite().getX();</span>
+<span class="fc" id="L29">        float playerY = player.getMoneySprite().getY();</span>
+
+<span class="fc" id="L31">        boolean[] collisions = EnemyAI.getCollisions(game, speed * deltaTime, enemy.getEnemyCollision());</span>
+<span class="fc" id="L32">        float diffX = playerX - enemyX;</span>
+<span class="fc" id="L33">        float diffY = playerY - enemyY;</span>
+
+        // move in direction of player updating the enemy position
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">        if (Math.abs(diffX) &gt; Math.abs(diffY)) {</span>
+<span class="pc bpc" id="L37" title="2 of 4 branches missed.">            if (diffX &gt; 0 &amp;&amp; !collisions[3]) {</span>
+<span class="fc" id="L38">                enemy.setEnemyX( enemyX + speed * deltaTime );</span>
+<span class="fc" id="L39">                return EnemyMoveDirection.RIGHT;</span>
+<span class="nc bnc" id="L40" title="All 4 branches missed.">            } else if (diffX &lt; 0 &amp;&amp; !collisions[2]) {</span>
+<span class="nc" id="L41">                enemy.setEnemyX( enemyX - speed * deltaTime );</span>
+<span class="nc" id="L42">                return EnemyMoveDirection.LEFT;</span>
+<span class="nc bnc" id="L43" title="All 4 branches missed.">            } else if (diffY &gt; 0 &amp;&amp; !collisions[0]) {</span>
+<span class="nc" id="L44">                enemy.setEnemyY( enemyY + speed * deltaTime );</span>
+<span class="nc" id="L45">                return EnemyMoveDirection.UP;</span>
+<span class="nc bnc" id="L46" title="All 4 branches missed.">            } else if (diffY &lt; 0 &amp;&amp; !collisions[1]) {</span>
+<span class="nc" id="L47">                enemy.setEnemyY( enemyY - speed * deltaTime );</span>
+<span class="nc" id="L48">                return EnemyMoveDirection.DOWN;</span>
+            }
+        } else {
+<span class="nc bnc" id="L51" title="All 4 branches missed.">            if (diffY &gt; 0 &amp;&amp; !collisions[0]) {</span>
+<span class="nc" id="L52">                enemy.setEnemyY( enemyY + speed * deltaTime );</span>
+<span class="nc" id="L53">                return EnemyMoveDirection.UP;</span>
+<span class="nc bnc" id="L54" title="All 4 branches missed.">            } else if (diffY &lt; 0 &amp;&amp; !collisions[1]) {</span>
+<span class="nc" id="L55">                enemy.setEnemyY( enemyY - speed * deltaTime );</span>
+<span class="nc" id="L56">                return EnemyMoveDirection.DOWN;</span>
+<span class="nc bnc" id="L57" title="All 4 branches missed.">            } else if (diffX &gt; 0 &amp;&amp; !collisions[3]) {</span>
+<span class="nc" id="L58">                enemy.setEnemyX( enemyX + speed * deltaTime );</span>
+<span class="nc" id="L59">                return EnemyMoveDirection.RIGHT;</span>
+<span class="nc bnc" id="L60" title="All 4 branches missed.">            } else if (diffX &lt; 0 &amp;&amp; !collisions[2]) {</span>
+<span class="nc" id="L61">                enemy.setEnemyX( enemyX - speed * deltaTime );</span>
+<span class="nc" id="L62">                return EnemyMoveDirection.LEFT;</span>
+            }
+        }
+<span class="nc" id="L65">        return EnemyMoveDirection.STATIONARY;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

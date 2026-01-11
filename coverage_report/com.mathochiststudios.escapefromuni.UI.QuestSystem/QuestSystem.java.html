@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuestSystem.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.UI.QuestSystem</a> &gt; <span class="el_source">QuestSystem.java</span></div><h1>QuestSystem.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.UI.QuestSystem;
+
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.mathochiststudios.escapefromuni.Game;
+
+import java.util.ArrayList;
+import java.util.Stack;
+
+public class QuestSystem {
+
+    private final Stack&lt;Quest&gt; mainQuests;
+    private final ArrayList&lt;Quest&gt; sideQuests;
+
+    private final Game game;
+
+<span class="fc" id="L19">    public QuestSystem(Game game) {</span>
+<span class="fc" id="L20">        mainQuests = new Stack&lt;&gt;();</span>
+<span class="fc" id="L21">        sideQuests = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L23">        this.game = game;</span>
+<span class="fc" id="L24">    }</span>
+
+    public void addMainQuest(Quest quest) {
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">        if (mainQuests.isEmpty()) { // no main quests yet</span>
+<span class="fc" id="L28">            mainQuests.push(quest);</span>
+<span class="fc" id="L29">            return;</span>
+        }
+<span class="nc bnc" id="L31" title="All 2 branches missed.">        if (quest.getLevel() &lt;= mainQuests.peek().getLevel()) { // quest already exists or is lower level</span>
+<span class="nc" id="L32">            return;</span>
+        }
+<span class="nc" id="L34">        mainQuests.push(quest);</span>
+<span class="nc" id="L35">    }</span>
+
+    public void addSideQuest(Quest quest) {
+        // check if side quest already exists
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">        for (Quest q : sideQuests) {</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">            if (q.getTitle().equals(quest.getTitle())) {</span>
+<span class="nc" id="L41">                return;</span>
+            }
+<span class="nc" id="L43">        }</span>
+<span class="fc" id="L44">        sideQuests.add(quest);</span>
+<span class="fc" id="L45">    }</span>
+
+    public void update() {
+<span class="nc bnc" id="L48" title="All 4 branches missed.">        if (!mainQuests.isEmpty() &amp;&amp; mainQuests.peek().isCompleted(game)) {</span>
+<span class="nc" id="L49">            mainQuests.pop();</span>
+        }
+
+<span class="nc" id="L52">        sideQuests.removeIf(quest -&gt; quest.isCompleted(game));</span>
+<span class="nc" id="L53">    }</span>
+
+    public Quest getCurrentMainQuest() {
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        return mainQuests.isEmpty() ? null : mainQuests.peek();</span>
+    }
+
+    public ArrayList&lt;Quest&gt; getSideQuests() {
+<span class="nc" id="L60">        return sideQuests;</span>
+    }
+
+    public void render(SpriteBatch batch, OrthographicCamera camera) {
+
+<span class="nc" id="L65">        BitmapFont font = game.getTextureManager().getGameSmallFont();</span>
+
+<span class="nc" id="L67">        GlyphLayout layout = new GlyphLayout(font, &quot;Quests&quot;);</span>
+<span class="nc" id="L68">        float y = camera.viewportHeight - 20;</span>
+
+<span class="nc" id="L70">        batch.begin();</span>
+<span class="nc" id="L71">        font.setColor(1, 1, 0, 1);</span>
+
+        // draw header
+<span class="nc" id="L74">        font.draw(batch, &quot;Quests&quot;, camera.viewportWidth - layout.width - 20, y);</span>
+<span class="nc" id="L75">        y -= layout.height + 10;</span>
+<span class="nc" id="L76">        font.setColor(1, 1, 1, 1);</span>
+
+        // draw main quest
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (getCurrentMainQuest() != null) {</span>
+<span class="nc" id="L80">            layout.setText(font, &quot;Main: &quot; + getCurrentMainQuest().getTitle());</span>
+<span class="nc" id="L81">            font.draw(batch, &quot;Main: &quot; + getCurrentMainQuest().getTitle(), camera.viewportWidth - layout.width - 20, y);</span>
+        } else {
+<span class="nc" id="L83">            layout.setText(font, &quot;Main: None&quot;);</span>
+<span class="nc" id="L84">            font.draw(batch, &quot;Main: None&quot;, camera.viewportWidth - layout.width - 20, y);</span>
+        }
+<span class="nc" id="L86">        y -= layout.height + 10;</span>
+
+        // draw side quests
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        for (Quest quest : sideQuests) {</span>
+<span class="nc" id="L90">            layout.setText(font, &quot;Side: &quot; + quest.getTitle());</span>
+<span class="nc" id="L91">            font.draw(batch, &quot;Side: &quot; + quest.getTitle(), camera.viewportWidth - layout.width - 20, y);</span>
+<span class="nc" id="L92">            y -= layout.height + 10;</span>
+<span class="nc" id="L93">        }</span>
+<span class="nc" id="L94">        batch.end();</span>
+
+<span class="nc" id="L96">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

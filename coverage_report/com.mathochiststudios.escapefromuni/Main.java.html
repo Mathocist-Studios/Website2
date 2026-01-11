@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Main.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni</a> &gt; <span class="el_source">Main.java</span></div><h1>Main.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni;
+
+import java.util.Objects;
+
+import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.mathochiststudios.escapefromuni.Menus.CreditsMenu;
+import com.mathochiststudios.escapefromuni.Menus.EndGameMenu;
+import com.mathochiststudios.escapefromuni.Menus.LeaderboardMenu;
+import com.mathochiststudios.escapefromuni.Menus.MainMenu;
+import com.mathochiststudios.escapefromuni.Menus.MenuTextureManager;
+import com.mathochiststudios.escapefromuni.Menus.PauseMenu;
+import com.mathochiststudios.escapefromuni.Menus.SettingsMenu;
+import com.mathochiststudios.escapefromuni.Menus.TutorialMenu;
+import com.mathochiststudios.escapefromuni.Tests.HeadlessBatch;
+import com.mathochiststudios.escapefromuni.Tests.HeadlessStage;
+import com.mathochiststudios.escapefromuni.Tests.ISpriteBatch;
+import com.mathochiststudios.escapefromuni.Tests.IStage;
+import com.mathochiststudios.escapefromuni.Tests.LiveSpriteBatch;
+import com.mathochiststudios.escapefromuni.Tests.LiveStage;
+import com.mathochiststudios.escapefromuni.UI.Mouse;
+
+
+
+/** {@link ApplicationListener} implementation shared by all platforms. */
+<span class="fc" id="L32">public class Main implements ApplicationListener {</span>
+
+<span class="fc" id="L34">    public static boolean TESTING = true; // Set to false for production</span>
+    //
+
+    Game game;
+
+<span class="fc" id="L39">    Boolean hasReset = true;</span>
+
+    Boolean gameStarted;
+
+    public ISpriteBatch batch;
+    public FitViewport viewport;
+
+<span class="fc" id="L46">    boolean paused = false;</span>
+<span class="fc" id="L47">    boolean allowPauseButton = false;</span>
+
+<span class="fc" id="L49">    int latestScore = -1;</span>
+    boolean wonLastGame;
+
+    boolean buttonCD;
+
+    // used for mouse coordinates
+<span class="fc" id="L55">    Mouse mouse = new Mouse();</span>
+    Boolean music;
+
+
+    MenuTextureManager textureManager;
+
+    TextureManager textureManagerClassic;
+
+<span class="fc" id="L63">    String menuState = &quot;Main&quot;;</span>
+
+<span class="fc" id="L65">    String hoveredOver = &quot;&quot;;</span>
+<span class="fc" id="L66">    boolean isEndGameMenu = false; // dont ask. I needed a on switch event for end menu</span>
+
+    MainMenu mainMenu;
+    LeaderboardMenu leaderboardMenu;
+    TutorialMenu tutorialMenu;
+    EndGameMenu endGameMenu;
+    PauseMenu pauseMenu;
+    SettingsMenu settingsMenu;
+    CreditsMenu creditsMenu;
+
+    String input;
+    String pauseState;
+<span class="fc" id="L78">    GameDifficulty gameDifficulty = GameDifficulty.NORMAL;</span>
+<span class="fc" id="L79">    String difficulty = &quot;Normal&quot;;</span>
+
+<span class="fc" id="L81">    String name = &quot;Player&quot;;</span>
+
+    IStage stage;
+
+    @Override
+    public void create() {
+<span class="fc" id="L87">        gameStarted = false;</span>
+
+<span class="fc" id="L89">        buttonCD = false;</span>
+<span class="fc" id="L90">        wonLastGame = false;</span>
+
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        if (TESTING) {</span>
+<span class="fc" id="L93">            batch = new HeadlessBatch();</span>
+        } else {
+<span class="nc" id="L95">            batch = new LiveSpriteBatch();</span>
+        }
+
+<span class="fc" id="L98">        viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());</span>
+
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        if (TESTING) {</span>
+<span class="fc" id="L101">            stage = new HeadlessStage(viewport);</span>
+        } else {
+<span class="nc" id="L103">            stage = new LiveStage(viewport);</span>
+<span class="nc" id="L104">            Gdx.input.setInputProcessor((InputProcessor) stage);</span>
+        }
+
+<span class="fc" id="L107">        game = new Game(this, gameDifficulty);</span>
+
+<span class="fc" id="L109">        music=true;</span>
+
+<span class="fc" id="L111">        mainMenu = new MainMenu(batch, viewport, latestScore, wonLastGame, buttonCD, mouse, textureManager);</span>
+<span class="fc" id="L112">        leaderboardMenu = new LeaderboardMenu(batch, viewport, buttonCD, mouse, textureManager);</span>
+<span class="fc" id="L113">        tutorialMenu = new TutorialMenu(batch, viewport, buttonCD, mouse, textureManager);</span>
+<span class="fc" id="L114">        endGameMenu = new EndGameMenu(batch, viewport, latestScore, wonLastGame, buttonCD, mouse, textureManager);</span>
+<span class="fc" id="L115">        pauseMenu = new PauseMenu(batch, viewport, buttonCD, mouse, textureManager);</span>
+<span class="fc" id="L116">        settingsMenu = new SettingsMenu(batch, viewport, buttonCD, mouse, textureManager, name, difficulty, music,stage);</span>
+<span class="fc" id="L117">        creditsMenu = new CreditsMenu(batch, viewport, latestScore, wonLastGame, buttonCD, mouse, textureManager);</span>
+
+        // Load fonts
+<span class="fc" id="L120">        textureManager = new MenuTextureManager(viewport);</span>
+<span class="fc" id="L121">        textureManagerClassic = new TextureManager(viewport);</span>
+<span class="fc" id="L122">    }</span>
+
+    public void startGame() {
+<span class="fc" id="L125">        game = new Game(this, gameDifficulty);</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        if (difficulty.equals(&quot;Easy&quot;)) {</span>
+<span class="nc" id="L127">            textureManagerClassic.setBgm(Gdx.audio.newMusic(Gdx.files.internal(&quot;EscapeAdventure.ogg&quot;)));</span>
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">        } else if (difficulty.equals(&quot;Normal&quot;)) {</span>
+<span class="fc" id="L129">            textureManagerClassic.setBgm(Gdx.audio.newMusic(Gdx.files.internal(&quot;EscapeAdventure.ogg&quot;)));</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        } else if (difficulty.equals(&quot;Hard&quot;)) {</span>
+<span class="nc" id="L131">            textureManagerClassic.setBgm(Gdx.audio.newMusic(Gdx.files.internal(&quot;FreakyEscapeAdventure.ogg&quot;)));</span>
+        }
+
+<span class="fc" id="L134">        gameStarted = true;</span>
+<span class="fc" id="L135">        paused = false;</span>
+<span class="fc" id="L136">        allowPauseButton = true;</span>
+<span class="fc" id="L137">        game.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());</span>
+<span class="fc" id="L138">    }</span>
+
+    @Override
+    public void resize(int width, int height) {
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (gameStarted) {</span>
+<span class="nc" id="L143">            game.resize(width, height);</span>
+        } else {
+<span class="nc" id="L145">            viewport.update(width, height, true);</span>
+        }
+<span class="nc" id="L147">    }</span>
+
+    // Runs every frame
+    @Override
+    public void render() {
+
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">        if (!Gdx.input.isTouched()) {</span>
+<span class="fc" id="L154">            buttonCD = false;</span>
+        }
+
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">        if (gameStarted) {</span>
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">            if (!game.gameEnded) {</span>
+<span class="pc bpc" id="L159" title="2 of 4 branches missed.">                if (allowPauseButton &amp;&amp; Gdx.input.isKeyJustPressed(Input.Keys.P)) {</span>
+                    // allowPauseButton = false;
+<span class="nc" id="L161">                    pauseMenu.resetText();</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">                    paused = !paused;</span>
+<span class="nc" id="L163">                    ScreenUtils.clear(Color.CLEAR);</span>
+                }
+
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">                if (music){</span>
+<span class="fc" id="L167">                    textureManagerClassic.getBgm().setVolume(0.3f);</span>
+<span class="fc" id="L168">                    textureManagerClassic.getBgm().play();</span>
+                }
+
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">                if (!TESTING) {</span>
+<span class="nc" id="L172">                    game.draw((SpriteBatch) batch, viewport);</span>
+                }
+
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">                if (!paused) {</span>
+<span class="nc" id="L176">                    game.input();</span>
+<span class="nc" id="L177">                    game.logic();</span>
+<span class="nc" id="L178">                    return;</span>
+                }
+<span class="fc" id="L180">                pauseMenu.update(batch, viewport, latestScore, wonLastGame, buttonCD, mouse, textureManager);</span>
+
+<span class="pc bpc" id="L182" title="1 of 2 branches missed.">                if (TESTING) {</span>
+<span class="fc" id="L183">                    return;</span>
+                }
+<span class="nc" id="L185">                pauseMenu.draw();</span>
+<span class="nc" id="L186">                pauseState = pauseMenu.input();</span>
+<span class="nc bnc" id="L187" title="All 4 branches missed.">                switch (pauseState) {</span>
+                    case &quot;Resume&quot; -&gt; {
+<span class="nc" id="L189">                        paused = false;</span>
+<span class="nc" id="L190">                        pauseMenu.resetText();</span>
+<span class="nc" id="L191">                    }</span>
+                    case &quot;Main&quot; -&gt; {
+<span class="nc" id="L193">                        textureManagerClassic.getBgm().stop();</span>
+<span class="nc" id="L194">                        textureManagerClassic.getBgm().pause();</span>
+<span class="nc" id="L195">                        endGame(game.getScore(), game.WinOrLose);</span>
+<span class="nc" id="L196">                        textureManagerClassic.getBgm().stop();</span>
+<span class="nc" id="L197">                    }</span>
+                    case &quot;Restart&quot; -&gt; {
+<span class="nc" id="L199">                        startGame();</span>
+<span class="nc" id="L200">                        menuState = &quot;Main&quot;;</span>
+<span class="nc" id="L201">                    }</span>
+                    default -&gt; {
+                    }
+                }
+<span class="nc" id="L205">                return;</span>
+            }
+
+<span class="nc" id="L208">            endGame(game.getScore(), game.WinOrLose);</span>
+<span class="nc" id="L209">            return;</span>
+        }
+
+<span class="nc bnc" id="L212" title="All 9 branches missed.">        switch (menuState) {</span>
+            case &quot;Main&quot; -&gt; {
+<span class="nc bnc" id="L214" title="All 2 branches missed.">                if (hasReset) {</span>
+<span class="nc" id="L215">                    mainMenu.resetText();</span>
+<span class="nc" id="L216">                    hasReset = false;</span>
+                }
+<span class="nc" id="L218">                mainMenu.update(batch, viewport, latestScore, wonLastGame, buttonCD, mouse, textureManager);</span>
+<span class="nc" id="L219">                mainMenu.draw();</span>
+<span class="nc" id="L220">                menuState = mainMenu.input();</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">                if (!menuState.equals(&quot;Main&quot;)) {</span>
+<span class="nc" id="L222">                    hasReset = true;</span>
+                }
+            }
+            case &quot;Tutorial&quot; -&gt; {
+<span class="nc bnc" id="L226" title="All 2 branches missed.">                if (hasReset) {</span>
+<span class="nc" id="L227">                    tutorialMenu.resetText();</span>
+<span class="nc" id="L228">                    hasReset = false;</span>
+                }
+<span class="nc" id="L230">                tutorialMenu.update(batch, viewport, latestScore, wonLastGame, buttonCD, mouse, textureManager);</span>
+<span class="nc" id="L231">                tutorialMenu.draw();</span>
+<span class="nc" id="L232">                menuState = tutorialMenu.input();</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">                if (!menuState.equals(&quot;Tutorial&quot;)) {</span>
+<span class="nc" id="L234">                    hasReset = true;</span>
+                }
+            }
+            case &quot;Start Game&quot; -&gt; {
+<span class="nc" id="L238">                startGame();</span>
+<span class="nc" id="L239">                menuState = &quot;Main&quot;;</span>
+<span class="nc" id="L240">            }</span>
+            case &quot;Leaderboard&quot; -&gt; {
+<span class="nc bnc" id="L242" title="All 2 branches missed.">                if (hasReset) {</span>
+                    // leaderboardMenu.addLeaderboardEntry(&quot;test&quot;, 184, &quot;Easy&quot;);
+                    // leaderboardMenu.addLeaderboardEntry(&quot;test2&quot;, 1834, &quot;Normal&quot;);
+                    // leaderboardMenu.addLeaderboardEntry(&quot;test3&quot;, 14, &quot;Hard&quot;);
+<span class="nc" id="L246">                    leaderboardMenu.resetText();</span>
+<span class="nc" id="L247">                    hasReset = false;</span>
+                }
+<span class="nc" id="L249">                leaderboardMenu.update(batch, viewport, latestScore, wonLastGame, buttonCD, mouse, textureManager);</span>
+<span class="nc" id="L250">                leaderboardMenu.draw();</span>
+<span class="nc" id="L251">                menuState = leaderboardMenu.input();</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">                if (!menuState.equals(&quot;Leaderboard&quot;)) {</span>
+<span class="nc" id="L253">                    hasReset = true;</span>
+                }
+            }
+            case &quot;Settings&quot; -&gt; {
+<span class="nc" id="L257">                menuState = &quot;PreGameSettings&quot;;</span>
+<span class="nc" id="L258">            }</span>
+            case &quot;PreGameSettings&quot; -&gt; {
+<span class="nc bnc" id="L260" title="All 2 branches missed.">                if (hasReset) {</span>
+<span class="nc" id="L261">                    settingsMenu.textBoxunFix();</span>
+<span class="nc" id="L262">                    settingsMenu.resetText();</span>
+<span class="nc" id="L263">                    hasReset = false;</span>
+                }
+<span class="nc" id="L265">                settingsMenu.update(batch, viewport, latestScore, wonLastGame, buttonCD, mouse, textureManager);</span>
+<span class="nc" id="L266">                settingsMenu.draw();</span>
+<span class="nc" id="L267">                menuState = settingsMenu.input();</span>
+<span class="nc" id="L268">                name = settingsMenu.getName();</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">                if (!menuState.equals(&quot;PreGameSettings&quot;)) {</span>
+<span class="nc" id="L270">                    hasReset = true;</span>
+<span class="nc" id="L271">                    settingsMenu.textBoxFix();</span>
+                }
+<span class="nc" id="L273">                difficulty = settingsMenu.getDifficulty();</span>
+<span class="nc" id="L274">                music = settingsMenu.getMusic();</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">                if (settingsMenu.getDifficulty().equals(&quot;Easy&quot;)) {</span>
+<span class="nc" id="L276">                    gameDifficulty = GameDifficulty.EASY;</span>
+<span class="nc bnc" id="L277" title="All 2 branches missed.">                } else if (settingsMenu.getDifficulty().equals(&quot;Normal&quot;)) {</span>
+<span class="nc" id="L278">                    gameDifficulty = GameDifficulty.NORMAL;</span>
+<span class="nc bnc" id="L279" title="All 2 branches missed.">                } else if (settingsMenu.getDifficulty().equals(&quot;Hard&quot;)) {</span>
+<span class="nc" id="L280">                    gameDifficulty = GameDifficulty.HARD;</span>
+                }
+            }
+            case &quot;EndMenu&quot; -&gt; {
+<span class="nc bnc" id="L284" title="All 2 branches missed.">                if (!isEndGameMenu) {</span>
+<span class="nc" id="L285">                    endGameMenu.onSwitchIn();</span>
+<span class="nc" id="L286">                    isEndGameMenu = true;</span>
+<span class="nc" id="L287">                    leaderboardMenu.addLeaderboardEntry(name, latestScore, difficulty);</span>
+                }
+<span class="nc" id="L289">                endGameMenu.update(batch, viewport, latestScore, wonLastGame, buttonCD, mouse, textureManager);</span>
+<span class="nc" id="L290">                endGameMenu.draw();</span>
+<span class="nc" id="L291">                menuState = endGameMenu.input();</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">                if (!menuState.equals(&quot;EndMenu&quot;)) {</span>
+<span class="nc" id="L293">                    isEndGameMenu = false;</span>
+<span class="nc" id="L294">                    hasReset = true;</span>
+                }
+            }
+            case &quot;Credits&quot; -&gt; {
+<span class="nc bnc" id="L298" title="All 2 branches missed.">                if (hasReset) {</span>
+<span class="nc" id="L299">                    creditsMenu.onSwitchIn();</span>
+<span class="nc" id="L300">                    hasReset = false;</span>
+                }
+<span class="nc" id="L302">                creditsMenu.update(batch, viewport, latestScore, wonLastGame, buttonCD, mouse, textureManager);</span>
+<span class="nc" id="L303">                creditsMenu.draw();</span>
+<span class="nc" id="L304">                menuState = creditsMenu.input();</span>
+<span class="nc bnc" id="L305" title="All 2 branches missed.">                if (!menuState.equals(&quot;Credits&quot;)) {</span>
+<span class="nc" id="L306">                    hasReset = true;</span>
+                }
+            }
+<span class="nc" id="L309">            default -&gt; menuState = &quot;Main&quot;;</span>
+        }
+
+<span class="nc" id="L312">    }</span>
+
+    public void endGame(int score, String winOrLose) {
+<span class="nc" id="L315">        gameStarted = false;</span>
+<span class="nc" id="L316">        paused = false;</span>
+<span class="nc" id="L317">        allowPauseButton = false;</span>
+<span class="nc" id="L318">        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());</span>
+
+<span class="nc bnc" id="L320" title="All 2 branches missed.">        if (!Objects.equals(winOrLose, &quot;Return&quot;)) { // should be not equals</span>
+<span class="nc" id="L321">            latestScore = score;</span>
+<span class="nc" id="L322">            wonLastGame = Objects.equals(winOrLose, &quot;Win&quot;);</span>
+        } else {
+<span class="nc" id="L324">            latestScore = -1;</span>
+<span class="nc" id="L325">            wonLastGame = false;</span>
+        }
+
+<span class="nc" id="L328">        game = null;</span>
+<span class="nc" id="L329">    }</span>
+
+    @Override
+    public void pause() {
+        // Invoked when your application is paused.
+        // game.pause();
+<span class="fc" id="L335">        paused = true;</span>
+<span class="fc" id="L336">    }</span>
+
+    @Override
+    public void resume() {
+        // Invoked when your application is resumed after pause.
+        // game.resume();
+<span class="nc" id="L342">        pauseMenu.resetText();</span>
+<span class="nc" id="L343">        paused = false;</span>
+<span class="nc" id="L344">    }</span>
+
+    @Override
+    public void dispose() {
+        // Destroy application's resources here.
+        // game.dispose();
+<span class="fc" id="L350">        textureManager.dispose();</span>
+<span class="fc" id="L351">    }</span>
+
+    public void setMenuState(String state) {
+<span class="fc" id="L354">        this.menuState = state;</span>
+<span class="fc" id="L355">    }</span>
+
+    public String getMenuState() {
+<span class="fc" id="L358">        return this.menuState;</span>
+    }
+
+    public String getPlayerName() {
+<span class="fc" id="L362">        return name;</span>
+    }
+
+    public Game getGame() {
+<span class="fc" id="L366">        return game;</span>
+    }
+
+    // For testing purposes
+    public void setPauseMenu(PauseMenu pm) {
+<span class="fc" id="L371">        this.pauseMenu = pm;</span>
+<span class="fc" id="L372">    }</span>
+
+    public void setTextureManagerClassic(TextureManager tm) {
+<span class="fc" id="L375">        this.textureManagerClassic = tm;</span>
+<span class="fc" id="L376">    }</span>
+
+    public TextureManager getTextureManagerClassic() {
+<span class="nc" id="L379">        return this.textureManagerClassic;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

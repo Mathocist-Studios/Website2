@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Wallet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.collectibles</a> &gt; <span class="el_source">Wallet.java</span></div><h1>Wallet.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.collectibles;
+
+import com.mathochiststudios.escapefromuni.UI.NotificationSystem.Notification;
+import com.mathochiststudios.escapefromuni.UI.NotificationSystem.NotificationType;
+import com.mathochiststudios.escapefromuni.UI.QuestSystem.Quests.HandInWalletSideQuest;
+import com.mathochiststudios.escapefromuni.entities.Player;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+import com.mathochiststudios.escapefromuni.entities.PlayerInventory.InventoryObject;
+import com.mathochiststudios.escapefromuni.levels.Level;
+
+/**
+ * Class Wallet represents the wallet, it has collision, texture, sprite, a list of spawns.
+ * It will be instantiated in LibraryFloor2 and its spawns are therefore hard-coded.
+ */
+public class Wallet {
+
+<span class="fc" id="L20">    Texture texture = new Texture(&quot;wallet.png&quot;);</span>
+<span class="fc" id="L21">    Sprite sprite = new Sprite(texture);</span>
+    Rectangle rectangle;
+<span class="fc" id="L23">    int[] spawn = {38, 12};</span>
+    boolean isDisposed;
+
+<span class="fc" id="L26">    public Wallet() {</span>
+        // logic for assigning spawn randomly and creating rectangle
+<span class="fc" id="L28">        this.isDisposed = false;</span>
+<span class="fc" id="L29">        this.sprite.setSize(1, 1);</span>
+        // Creates the rectangle for the Wallet around its spawn with the size of the sprite.
+        // spawn.get(0) being the x-coordinate and spawn.get(y) being the y-coordinate.
+<span class="fc" id="L32">        this.rectangle = new Rectangle(this.spawn[0], this.spawn[1], 1, 1);</span>
+        // Setting the location of the wallet.
+<span class="fc" id="L34">        this.sprite.setX(this.spawn[0]);</span>
+<span class="fc" id="L35">        this.sprite.setY(this.spawn[1]);</span>
+<span class="fc" id="L36">    }</span>
+
+    // Now need to set up the interaction between the player and the Wallet.
+    public boolean isCollidingWithPlayer(Player player) {
+<span class="fc" id="L40">        return this.rectangle.overlaps(player.getMoneyRectangle());</span>
+    }
+
+    /**
+     * Updates the logic of the Wallet, to be invoked every frame.
+     *
+     * @param player is Player player, the player class.
+     */
+    public void update(Player player, Level level) {
+        // Interaction between the player and the Wallet checked every frame.
+<span class="pc bpc" id="L50" title="1 of 4 branches missed.">        if (this.isCollidingWithPlayer(player) &amp;&amp; !this.isDisposed) {</span>
+<span class="fc" id="L51">            this.pickUp(player);</span>
+<span class="fc" id="L52">            Notification notification = new Notification(</span>
+                &quot;You found someones wallet!, hand it into the receptionist&quot;,
+                5,
+                NotificationType.SPEECH,
+<span class="fc" id="L56">                level.getGame().getTextureManager().getGameSmallFont()</span>
+            );
+<span class="fc" id="L58">            level.getGame().getHud().getNotificationManager().addNotification(notification);</span>
+<span class="fc" id="L59">            level.getGame().getHud().getQuestSystem().addSideQuest(</span>
+                new HandInWalletSideQuest()
+            );
+        }
+<span class="fc" id="L63">    }</span>
+
+    /**
+     * This method is used to simulate the player picking up the Wallet.
+     * To be invoked when the player collides with the Wallet.
+     *
+     * @param player is Player player, the player class.
+     */
+    private void pickUp(Player player) {
+<span class="fc" id="L72">        player.getInventory().addItem(InventoryObject.WALLET);</span>
+<span class="fc" id="L73">        this.isDisposed = true;</span>
+<span class="fc" id="L74">    }</span>
+
+    /**
+     * This draws the Wallet onto the screen.
+     * To be invoked every frame, until the Wallet is collected by the player.
+     *
+     * @param batch is the SpriteBatch.
+     */
+    public void draw(SpriteBatch batch) {
+        // i.e. if the texture has been disposed with don't try to draw it.
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (!this.isDisposed) {</span>
+<span class="nc" id="L85">            this.sprite.draw(batch);</span>
+        }
+<span class="nc" id="L87">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

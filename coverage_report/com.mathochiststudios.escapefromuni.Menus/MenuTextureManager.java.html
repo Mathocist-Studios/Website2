@@ -1,0 +1,650 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MenuTextureManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.Menus</a> &gt; <span class="el_source">MenuTextureManager.java</span></div><h1>MenuTextureManager.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.Menus;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.utils.SharedLibraryLoadRuntimeException;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+
+
+
+/**
+ * TextureManager is responsible for managing and loading all textures, sprites, fonts,
+ * and other graphical assets used in the game.
+ *
+ * This was added to improve code organization and separate graphical asset management
+ * since the last team's Main class was horrible.
+ */
+public class MenuTextureManager {
+    private Sprite creditsButtonSprite;
+    private Texture creditsButtonTexture;
+    private Sprite uncreditsButtonSprite;
+    private Texture uncreditsButtonTexture;
+
+    private BitmapFont mainFont;
+    private GlyphLayout mainLayout;
+
+    private BitmapFont gameLargeFont;
+    private BitmapFont gameSmallFont;
+    private BitmapFont gameMediumFont;
+
+    private Sprite playButtonSprite;
+    private Texture playButtonTexture;
+    private Sprite settingsButtonSprite;
+    private Texture settingsButtonTexture;
+    private Sprite exitButtonSprite;
+    private Texture exitButtonTexture;
+    private Sprite leaderboardButtonSprite;
+    private Texture leaderboardButtonTexture;
+    private Sprite MenuBackdropSprite;
+    private Texture MenuBackdropTexture;
+
+    private BitmapFont shopFont;
+
+    private Sprite unplayButtonSprite;
+    private Texture unplayButtonTexture;
+    private Sprite unsettingsButtonSprite;
+    private Texture unsettingsButtonTexture;
+    private Sprite unexitButtonSprite;
+    private Texture unexitButtonTexture;
+    private Sprite unleaderboardButtonSprite;
+    private Texture unleaderboardButtonTexture;
+    private Sprite unMenuBackdropSprite;
+    private Texture unMenuBackdropTexture;
+    private Sprite OverlaySprite;
+    private Texture OverlayTexture;
+
+    private Sprite startButtonSprite;
+    private Texture startButtonTexture;
+    private Sprite unstartButtonSprite;
+    private Texture unstartButtonTexture;
+    private Sprite TutorialSprite;
+    private Texture TutorialTexture;
+
+    private Sprite RestartSprite;
+    private Texture RestartTexture;
+    private Sprite returnToMenuButtonSprite;
+    private Texture returnToMenuButtonTexture;
+    private Sprite resumeButtonSprite;
+    private Texture resumeButtonTexture;
+    private Sprite hoverRestartSprite;
+    private Texture hoverRestartTexture;
+    private Sprite hoverreturnToMenuButtonSprite;
+    private Texture hoverreturnToMenuButtonTexture;
+    private Sprite hoverresumeButtonSprite;
+    private Texture hoverresumeButtonTexture;
+
+    private Sprite hoverSubmitSprite;
+    private Texture hoverSubmitTexture;
+    private Sprite SubmitSprite;
+    private Texture SubmitTexture;
+    private Sprite RightArrowSprite;
+    private Texture RightArrowTexture;
+    private Sprite LeftArrowSprite;
+    private Texture LeftArrowTexture;
+
+    private Sprite nextButtonSprite;
+    private Texture nextButtonTexture;
+    private Sprite hovernextButtonSprite;
+    private Texture hovernextButtonTexture;
+
+    private Sprite TwoRightArrowSprite;
+    private Texture TwoRightArrowTexture;
+    private Sprite TwoLeftArrowSprite;
+    private Texture TwoLeftArrowTexture;
+
+    private Texture menuText;
+    private Texture pausedText;
+
+<span class="fc" id="L102">    public MenuTextureManager(FitViewport viewport) {</span>
+
+        // Initialize textures, sprites, fonts, and other graphical assets here
+<span class="fc" id="L105">        mainLayout = new GlyphLayout();</span>
+
+        try {
+<span class="nc" id="L108">            this.generateFonts();</span>
+<span class="nc" id="L109">            gameLargeFont = this.genMainFont(90);</span>
+<span class="nc" id="L110">            gameSmallFont = this.genMainFont(30);</span>
+<span class="nc" id="L111">            gameMediumFont = this.genMainFont(50);</span>
+<span class="fc" id="L112">        } catch (SharedLibraryLoadRuntimeException e) {</span>
+<span class="fc" id="L113">            mainFont = null;</span>
+<span class="fc" id="L114">            shopFont = null;</span>
+<span class="fc" id="L115">            gameLargeFont = null;</span>
+<span class="fc" id="L116">            gameSmallFont = null;</span>
+<span class="fc" id="L117">            gameMediumFont = null;</span>
+<span class="nc" id="L118">        }</span>
+
+<span class="fc" id="L120">        TwoRightArrowTexture = new Texture(&quot;RightArrow - Copy.png&quot;);</span>
+<span class="fc" id="L121">        TwoRightArrowSprite = new Sprite(TwoRightArrowTexture);</span>
+<span class="fc" id="L122">        TwoRightArrowSprite.setSize(100, 100);</span>
+<span class="fc" id="L123">        TwoRightArrowSprite.setPosition(400+200, 800-640);</span>
+
+<span class="fc" id="L125">        TwoLeftArrowTexture = new Texture(&quot;LeftArrow - Copy.png&quot;);</span>
+<span class="fc" id="L126">        TwoLeftArrowSprite = new Sprite(TwoLeftArrowTexture);</span>
+<span class="fc" id="L127">        TwoLeftArrowSprite.setSize(100, 100);</span>
+<span class="fc" id="L128">        TwoLeftArrowSprite.setPosition(400+30,800-640);</span>
+
+<span class="fc" id="L130">        creditsButtonTexture = new Texture(&quot;creditsButton.png&quot;);</span>
+<span class="fc" id="L131">        creditsButtonSprite = new Sprite(creditsButtonTexture);</span>
+<span class="fc" id="L132">        creditsButtonSprite.setSize(700, 100);</span>
+<span class="fc" id="L133">        creditsButtonSprite.setPosition(100,200);</span>
+
+<span class="fc" id="L135">        uncreditsButtonTexture = new Texture(&quot;uncreditsButton.png&quot;);</span>
+<span class="fc" id="L136">        uncreditsButtonSprite = new Sprite(uncreditsButtonTexture);</span>
+<span class="fc" id="L137">        uncreditsButtonSprite.setSize(700, 100);</span>
+<span class="fc" id="L138">        uncreditsButtonSprite.setPosition(100,100);</span>
+
+<span class="fc" id="L140">        menuText = new Texture(&quot;escapefromunititle.png&quot;);</span>
+<span class="fc" id="L141">        pausedText = new Texture(&quot;pausedtext.png&quot;);</span>
+
+<span class="fc" id="L143">        TutorialTexture = new Texture(&quot;Tutorial.png&quot;);</span>
+<span class="fc" id="L144">        TutorialSprite = new Sprite(TutorialTexture);</span>
+<span class="fc" id="L145">        TutorialSprite.setSize(1280, 960);</span>
+<span class="fc" id="L146">        TutorialSprite.setPosition(0,0);</span>
+
+<span class="fc" id="L148">        playButtonTexture = new Texture(&quot;playButton.png&quot;);</span>
+<span class="fc" id="L149">        playButtonSprite = new Sprite(playButtonTexture);</span>
+<span class="fc" id="L150">        playButtonSprite.setSize(700, 100);</span>
+<span class="fc" id="L151">        playButtonSprite.setPosition(100,500);</span>
+
+<span class="fc" id="L153">        exitButtonTexture = new Texture(&quot;exitButton.png&quot;);</span>
+<span class="fc" id="L154">        exitButtonSprite = new Sprite(exitButtonTexture);</span>
+<span class="fc" id="L155">        exitButtonSprite.setSize(700, 100);</span>
+<span class="fc" id="L156">        exitButtonSprite.setPosition(100,100);</span>
+
+<span class="fc" id="L158">        startButtonTexture = new Texture(&quot;startButton.png&quot;);</span>
+<span class="fc" id="L159">        startButtonSprite = new Sprite(startButtonTexture);</span>
+<span class="fc" id="L160">        startButtonSprite.setSize(700, 100);</span>
+<span class="fc" id="L161">        startButtonSprite.setPosition(100,100);</span>
+
+<span class="fc" id="L163">        unstartButtonTexture = new Texture(&quot;unstartButton.png&quot;);</span>
+<span class="fc" id="L164">        unstartButtonSprite = new Sprite(unstartButtonTexture);</span>
+<span class="fc" id="L165">        unstartButtonSprite.setSize(700, 100);</span>
+<span class="fc" id="L166">        unstartButtonSprite.setPosition(100,100);</span>
+
+<span class="fc" id="L168">        settingsButtonTexture = new Texture(&quot;settingsButton.png&quot;);</span>
+<span class="fc" id="L169">        settingsButtonSprite = new Sprite(settingsButtonTexture);</span>
+<span class="fc" id="L170">        settingsButtonSprite.setSize(700, 100);</span>
+<span class="fc" id="L171">        settingsButtonSprite.setPosition(100,400);</span>
+
+<span class="fc" id="L173">        leaderboardButtonTexture = new Texture(&quot;leaderboardButton.png&quot;);</span>
+<span class="fc" id="L174">        leaderboardButtonSprite = new Sprite(leaderboardButtonTexture);</span>
+<span class="fc" id="L175">        leaderboardButtonSprite.setSize(700, 100);</span>
+<span class="fc" id="L176">        leaderboardButtonSprite.setPosition(100,300);</span>
+
+<span class="fc" id="L178">        unplayButtonTexture = new Texture(&quot;unplayButton.png&quot;);</span>
+<span class="fc" id="L179">        unplayButtonSprite = new Sprite(unplayButtonTexture);</span>
+<span class="fc" id="L180">        unplayButtonSprite.setSize(700, 100);</span>
+<span class="fc" id="L181">        unplayButtonSprite.setPosition(100,500);</span>
+
+<span class="fc" id="L183">        unexitButtonTexture = new Texture(&quot;unexitButton.png&quot;);</span>
+<span class="fc" id="L184">        unexitButtonSprite = new Sprite(unexitButtonTexture);</span>
+<span class="fc" id="L185">        unexitButtonSprite.setSize(700, 100);</span>
+<span class="fc" id="L186">        unexitButtonSprite.setPosition(100,200);</span>
+
+<span class="fc" id="L188">        nextButtonTexture = new Texture(&quot;next.png&quot;);</span>
+<span class="fc" id="L189">        nextButtonSprite = new Sprite(nextButtonTexture);</span>
+<span class="fc" id="L190">        nextButtonSprite.setSize(300, 100);</span>
+<span class="fc" id="L191">        nextButtonSprite.setPosition(900,20);</span>
+
+<span class="fc" id="L193">        hovernextButtonTexture = new Texture(&quot;hovernext.png&quot;);</span>
+<span class="fc" id="L194">        hovernextButtonSprite = new Sprite(nextButtonTexture);</span>
+<span class="fc" id="L195">        hovernextButtonSprite.setSize(300, 100);</span>
+<span class="fc" id="L196">        hovernextButtonSprite.setPosition(900,20);</span>
+
+<span class="fc" id="L198">        unexitButtonTexture = new Texture(&quot;unexitButton.png&quot;);</span>
+<span class="fc" id="L199">        unexitButtonSprite = new Sprite(unexitButtonTexture);</span>
+<span class="fc" id="L200">        unexitButtonSprite.setSize(700, 100);</span>
+<span class="fc" id="L201">        unexitButtonSprite.setPosition(100,200);</span>
+
+<span class="fc" id="L203">        unsettingsButtonTexture = new Texture(&quot;unsettingsButton.png&quot;);</span>
+<span class="fc" id="L204">        unsettingsButtonSprite = new Sprite(unsettingsButtonTexture);</span>
+<span class="fc" id="L205">        unsettingsButtonSprite.setSize(700, 100);</span>
+<span class="fc" id="L206">        unsettingsButtonSprite.setPosition(100,400);</span>
+
+<span class="fc" id="L208">        unleaderboardButtonTexture = new Texture(&quot;unleaderboardButton.png&quot;);</span>
+<span class="fc" id="L209">        unleaderboardButtonSprite = new Sprite(unleaderboardButtonTexture);</span>
+<span class="fc" id="L210">        unleaderboardButtonSprite.setSize(700, 100);</span>
+<span class="fc" id="L211">        unleaderboardButtonSprite.setPosition(100,300);</span>
+
+<span class="fc" id="L213">        returnToMenuButtonTexture = new Texture(&quot;returntext.png&quot;);</span>
+<span class="fc" id="L214">        returnToMenuButtonSprite = new Sprite(returnToMenuButtonTexture);</span>
+<span class="fc" id="L215">        returnToMenuButtonSprite.setSize(300, 100);</span>
+<span class="fc" id="L216">        returnToMenuButtonSprite.setPosition(240,100);</span>
+
+<span class="fc" id="L218">        resumeButtonTexture = new Texture(&quot;resumetext.png&quot;);</span>
+<span class="fc" id="L219">        resumeButtonSprite = new Sprite(resumeButtonTexture);</span>
+<span class="fc" id="L220">        resumeButtonSprite.setSize(300, 100);</span>
+<span class="fc" id="L221">        resumeButtonSprite.setPosition(240,500);</span>
+
+<span class="fc" id="L223">        hoverresumeButtonTexture = new Texture(&quot;hoverresumetext.png&quot;);</span>
+<span class="fc" id="L224">        hoverresumeButtonSprite = new Sprite(hoverresumeButtonTexture);</span>
+<span class="fc" id="L225">        hoverresumeButtonSprite.setSize(300, 100);</span>
+<span class="fc" id="L226">        hoverresumeButtonSprite.setPosition(240,500);</span>
+
+<span class="fc" id="L228">        MenuBackdropTexture = new Texture(&quot;MenuBackdrop.png&quot;);</span>
+<span class="fc" id="L229">        MenuBackdropSprite = new Sprite(MenuBackdropTexture);</span>
+<span class="fc" id="L230">        MenuBackdropSprite.setSize((float) 1280 /3, 200);</span>
+<span class="fc" id="L231">        MenuBackdropSprite.setPosition((float) 1280 /3,330);</span>
+
+<span class="fc" id="L233">        OverlayTexture = new Texture(&quot;Overlay.png&quot;);</span>
+<span class="fc" id="L234">        OverlaySprite = new Sprite(OverlayTexture);</span>
+<span class="fc" id="L235">        OverlaySprite.setSize((float) 1280 /3, 200);</span>
+<span class="fc" id="L236">        OverlaySprite.setPosition((float) 1280 /3,330);</span>
+
+<span class="fc" id="L238">        RestartTexture = new Texture(&quot;Restart.png&quot;);</span>
+<span class="fc" id="L239">        RestartSprite = new Sprite(RestartTexture);</span>
+<span class="fc" id="L240">        RestartSprite.setSize(300, 100);</span>
+<span class="fc" id="L241">        RestartSprite.setPosition(240,300);</span>
+
+<span class="fc" id="L243">        hoverRestartTexture = new Texture(&quot;hoverRestart.png&quot;);</span>
+<span class="fc" id="L244">        hoverRestartSprite = new Sprite(hoverRestartTexture);</span>
+<span class="fc" id="L245">        hoverRestartSprite.setSize(300, 100);</span>
+<span class="fc" id="L246">        hoverRestartSprite.setPosition(240+80,300);</span>
+
+<span class="fc" id="L248">        SubmitTexture = new Texture(&quot;Submit.png&quot;);</span>
+<span class="fc" id="L249">        SubmitSprite = new Sprite(SubmitTexture);</span>
+<span class="fc" id="L250">        SubmitSprite.setSize(300, 100);</span>
+<span class="fc" id="L251">        SubmitSprite.setPosition(600+80,580);</span>
+
+<span class="fc" id="L253">        hoverSubmitTexture = new Texture(&quot;hoverSubmit.png&quot;);</span>
+<span class="fc" id="L254">        hoverSubmitSprite = new Sprite(hoverSubmitTexture);</span>
+<span class="fc" id="L255">        hoverSubmitSprite.setSize(300, 100);</span>
+<span class="fc" id="L256">        hoverSubmitSprite.setPosition(600,580);</span>
+
+<span class="fc" id="L258">        RightArrowTexture = new Texture(&quot;RightArrow.png&quot;);</span>
+<span class="fc" id="L259">        RightArrowSprite = new Sprite(RightArrowTexture);</span>
+<span class="fc" id="L260">        RightArrowSprite.setSize(100, 100);</span>
+<span class="fc" id="L261">        RightArrowSprite.setPosition(400+400+30,370);</span>
+
+<span class="fc" id="L263">        LeftArrowTexture = new Texture(&quot;LeftArrow.png&quot;);</span>
+<span class="fc" id="L264">        LeftArrowSprite = new Sprite(LeftArrowTexture);</span>
+<span class="fc" id="L265">        LeftArrowSprite.setSize(100, 100);</span>
+<span class="fc" id="L266">        LeftArrowSprite.setPosition(400+30,370);</span>
+
+<span class="fc" id="L268">        hoverRestartTexture = new Texture(&quot;hoverRestart.png&quot;);</span>
+<span class="fc" id="L269">        hoverRestartSprite = new Sprite(hoverRestartTexture);</span>
+<span class="fc" id="L270">        hoverRestartSprite.setSize(300, 100);</span>
+<span class="fc" id="L271">        hoverRestartSprite.setPosition(240,300);</span>
+
+<span class="fc" id="L273">        hoverreturnToMenuButtonTexture = new Texture(&quot;hoverreturntext.png&quot;);</span>
+<span class="fc" id="L274">        hoverreturnToMenuButtonSprite = new Sprite(hoverreturnToMenuButtonTexture);</span>
+<span class="fc" id="L275">        hoverreturnToMenuButtonSprite.setSize(300, 100);</span>
+<span class="fc" id="L276">        hoverreturnToMenuButtonSprite.setPosition(240,100);</span>
+
+<span class="fc" id="L278">        hoverresumeButtonTexture = new Texture(&quot;hoverresumetext.png&quot;);</span>
+<span class="fc" id="L279">        hoverresumeButtonSprite = new Sprite(hoverresumeButtonTexture);</span>
+<span class="fc" id="L280">        hoverresumeButtonSprite.setSize(300, 100);</span>
+<span class="fc" id="L281">        hoverresumeButtonSprite.setPosition(240,500);</span>
+<span class="fc" id="L282">    }</span>
+
+<span class="nc" id="L284">    public MenuTextureManager(Sprite LeftArrowSprite, Texture LeftArrowTexture, Sprite RightArrowSprite, Texture RightArrowTexture) {</span>
+<span class="nc" id="L285">        this.LeftArrowSprite = LeftArrowSprite;</span>
+<span class="nc" id="L286">        this.LeftArrowTexture = LeftArrowTexture;</span>
+<span class="nc" id="L287">        this.RightArrowSprite = RightArrowSprite;</span>
+<span class="nc" id="L288">        this.RightArrowTexture = RightArrowTexture;</span>
+<span class="nc" id="L289">    }</span>
+
+    public BitmapFont genMainFont(int size) {
+<span class="nc" id="L292">        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(&quot;fonts/Jersey25-Regular.ttf&quot;));</span>
+<span class="nc" id="L293">        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();</span>
+<span class="nc" id="L294">        parameter.size = size;</span>
+<span class="nc" id="L295">        parameter.borderWidth = 1;</span>
+<span class="nc" id="L296">        parameter.borderColor = com.badlogic.gdx.graphics.Color.BLACK;</span>
+<span class="nc" id="L297">        parameter.color = com.badlogic.gdx.graphics.Color.WHITE;</span>
+<span class="nc" id="L298">        parameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear; // smooth scaling up</span>
+<span class="nc" id="L299">        parameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear; // smooth scaling down</span>
+<span class="nc" id="L300">        BitmapFont tempFont = generator.generateFont(parameter);</span>
+<span class="nc" id="L301">        generator.dispose();</span>
+<span class="nc" id="L302">        return tempFont;</span>
+    }
+
+    private void generateFonts() {
+<span class="nc" id="L306">        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(&quot;Fonts/Jersey25-Regular.ttf&quot;));</span>
+<span class="nc" id="L307">        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();</span>
+<span class="nc" id="L308">        parameter.size = 128;</span>
+<span class="nc" id="L309">        parameter.borderWidth = 1;</span>
+<span class="nc" id="L310">        parameter.borderColor = com.badlogic.gdx.graphics.Color.BLACK;</span>
+<span class="nc" id="L311">        parameter.color = com.badlogic.gdx.graphics.Color.WHITE;</span>
+<span class="nc" id="L312">        parameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear; // smooth scaling up</span>
+<span class="nc" id="L313">        parameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear; // smooth scaling down</span>
+<span class="nc" id="L314">        mainFont = generator.generateFont(parameter);</span>
+<span class="nc" id="L315">        parameter.size = 40;</span>
+<span class="nc" id="L316">        shopFont = generator.generateFont(parameter);</span>
+<span class="nc" id="L317">        generator.dispose();</span>
+<span class="nc" id="L318">    }</span>
+
+    public BitmapFont getMainFont() {
+<span class="nc" id="L321">        return mainFont;</span>
+    }
+
+    public void setMainFont(BitmapFont mainFont) {
+<span class="nc" id="L325">        this.mainFont = mainFont;</span>
+<span class="nc" id="L326">    }</span>
+
+    public GlyphLayout getMainLayout() {
+<span class="nc" id="L329">        return mainLayout;</span>
+    }
+
+    public void setMainLayout(GlyphLayout mainLayout) {
+<span class="nc" id="L333">        this.mainLayout = mainLayout;</span>
+<span class="nc" id="L334">    }</span>
+
+    public Sprite getPlayButtonSprite() {
+<span class="nc" id="L337">        return playButtonSprite;</span>
+    }
+
+    public void setPlayButtonSprite(Sprite playButtonSprite) {
+<span class="nc" id="L341">        this.playButtonSprite = playButtonSprite;</span>
+<span class="nc" id="L342">    }</span>
+
+    public Texture getPlayButtonTexture() {
+<span class="nc" id="L345">        return playButtonTexture;</span>
+    }
+
+    public void setPlayButtonTexture(Texture playButtonTexture) {
+<span class="nc" id="L349">        this.playButtonTexture = playButtonTexture;</span>
+<span class="nc" id="L350">    }</span>
+
+    public Sprite getReturnToMenuButtonSprite() {
+<span class="nc" id="L353">        return returnToMenuButtonSprite;</span>
+    }
+
+    public void setReturnToMenuButtonSprite(Sprite returnToMenuButtonSprite) {
+<span class="nc" id="L357">        this.returnToMenuButtonSprite = returnToMenuButtonSprite;</span>
+<span class="nc" id="L358">    }</span>
+
+    public Texture getReturnToMenuButtonTexture() {
+<span class="nc" id="L361">        return returnToMenuButtonTexture;</span>
+    }
+
+    public void setReturnToMenuButtonTexture(Texture returnToMenuButtonTexture) {
+<span class="nc" id="L365">        this.returnToMenuButtonTexture = returnToMenuButtonTexture;</span>
+<span class="nc" id="L366">    }</span>
+
+    public Sprite getResumeButtonSprite() {
+<span class="nc" id="L369">        return resumeButtonSprite;</span>
+    }
+
+    public void setResumeButtonSprite(Sprite resumeButtonSprite) {
+<span class="nc" id="L373">        this.resumeButtonSprite = resumeButtonSprite;</span>
+<span class="nc" id="L374">    }</span>
+
+    public Texture getResumeButtonTexture() {
+<span class="nc" id="L377">        return resumeButtonTexture;</span>
+    }
+
+    public void setResumeButtonTexture(Texture resumeButtonTexture) {
+<span class="nc" id="L381">        this.resumeButtonTexture = resumeButtonTexture;</span>
+<span class="nc" id="L382">    }</span>
+
+    public Texture getMenuText() {
+<span class="nc" id="L385">        return menuText;</span>
+    }
+
+    public void setMenuText(Texture menuText) {
+<span class="nc" id="L389">        this.menuText = menuText;</span>
+<span class="nc" id="L390">    }</span>
+
+    public Texture getPausedText() {
+<span class="nc" id="L393">        return pausedText;</span>
+    }
+
+    public void setPausedText(Texture pausedText) {
+<span class="nc" id="L397">        this.pausedText = pausedText;</span>
+<span class="nc" id="L398">    }</span>
+
+    public BitmapFont getGameLargeFont() {
+<span class="nc" id="L401">        return gameLargeFont;</span>
+    }
+
+    public BitmapFont getGameMediumFont() {
+<span class="nc" id="L405">        return gameMediumFont;</span>
+    }
+
+    public BitmapFont getGameSmallFont() {
+<span class="nc" id="L409">        return gameSmallFont;</span>
+    }
+
+    public Texture getunPlayButtonTexture() {
+<span class="nc" id="L413">        return unplayButtonTexture;</span>
+    }
+
+    public Sprite getunPlayButtonSprite() {
+<span class="nc" id="L417">        return unplayButtonSprite;</span>
+    }
+
+    public Texture getExitButtonTexture() {
+<span class="nc" id="L421">        return exitButtonTexture;</span>
+    }
+
+    public Sprite getExitButtonSprite() {
+<span class="nc" id="L425">        return exitButtonSprite;</span>
+    }
+
+    public Texture getSettingsButtonTexture() {
+<span class="nc" id="L429">        return settingsButtonTexture;</span>
+    }
+
+    public Sprite getSettingsButtonSprite() {
+<span class="nc" id="L433">        return settingsButtonSprite;</span>
+    }
+
+    public Sprite getLeaderboardButtonSprite() {
+<span class="nc" id="L437">        return leaderboardButtonSprite;</span>
+    }
+
+    public Texture getLeaderboardButtonTexture() {
+<span class="nc" id="L441">        return leaderboardButtonTexture;</span>
+    }
+
+    public Sprite getStartButtonSprite() {
+<span class="nc" id="L445">        return startButtonSprite;</span>
+    }
+
+    public Texture getStartButtonTexture() {
+<span class="nc" id="L449">        return startButtonTexture;</span>
+    }
+
+    public Sprite getunStartButtonSprite() {
+<span class="nc" id="L453">        return unstartButtonSprite;</span>
+    }
+
+    public Texture getunStartButtonTexture() {
+<span class="nc" id="L457">        return unstartButtonTexture;</span>
+    }
+
+    public Sprite getTutorialSprite() {
+<span class="nc" id="L461">        return TutorialSprite;</span>
+    }
+
+    public Texture getTutorialTexture() {
+<span class="nc" id="L465">        return TutorialTexture;</span>
+    }
+
+    public Sprite getMenuBackdropSprite() {
+<span class="nc" id="L469">        return MenuBackdropSprite;</span>
+    }
+
+    public Texture getMenuBackdropTexture() {
+<span class="nc" id="L473">        return MenuBackdropTexture;</span>
+    }
+
+    public Texture getunExitButtonTexture() {
+<span class="nc" id="L477">        return unexitButtonTexture;</span>
+    }
+
+    public Sprite getunExitButtonSprite() {
+<span class="nc" id="L481">        return unexitButtonSprite;</span>
+    }
+
+    public Texture getunSettingsButtonTexture() {
+<span class="nc" id="L485">        return unsettingsButtonTexture;</span>
+    }
+
+    public Sprite getunSettingsButtonSprite() {
+<span class="nc" id="L489">        return unsettingsButtonSprite;</span>
+    }
+
+    public Sprite getunLeaderboardButtonSprite() {
+<span class="nc" id="L493">        return unleaderboardButtonSprite;</span>
+    }
+
+    public Texture getunLeaderboardButtonTexture() {
+<span class="nc" id="L497">        return unleaderboardButtonTexture;</span>
+    }
+
+    public Sprite getunMenuBackdropSprite() {
+<span class="nc" id="L501">        return unMenuBackdropSprite;</span>
+    }
+
+    public Texture getunMenuBackdropTexture() {
+<span class="nc" id="L505">        return unMenuBackdropTexture;</span>
+    }
+
+    public Sprite getRestartSprite() {
+<span class="nc" id="L509">        return RestartSprite;</span>
+    }
+
+    public Texture getRestartTexture() {
+<span class="nc" id="L513">        return RestartTexture;</span>
+    }
+
+    public Sprite gethoverRestartSprite() {
+<span class="nc" id="L517">        return hoverRestartSprite;</span>
+    }
+
+    public Texture gethoverRestartTexture() {
+<span class="nc" id="L521">        return hoverRestartTexture;</span>
+    }
+
+    public Sprite gethoverReturnToMenuButtonSprite() {
+<span class="nc" id="L525">        return hoverreturnToMenuButtonSprite;</span>
+    }
+
+    public Texture gethoverReturnToMenuButtonTexture() {
+<span class="nc" id="L529">        return hoverreturnToMenuButtonTexture;</span>
+    }
+
+    public Sprite gethoverResumeButtonSprite() {
+<span class="nc" id="L533">        return hoverresumeButtonSprite;</span>
+    }
+
+    public Texture hovergetResumeButtonTexture() {
+<span class="nc" id="L537">        return hoverresumeButtonTexture;</span>
+    }
+
+    public Sprite getOverlaySprite() {
+<span class="nc" id="L541">        return OverlaySprite;</span>
+    }
+
+    public Texture getOverlayTexture() {
+<span class="nc" id="L545">        return OverlayTexture;</span>
+    }
+
+    public void dispose() {
+        // Dispose of all textures, sprites, fonts, and other graphical assets here
+<span class="pc bpc" id="L550" title="1 of 2 branches missed.">        if (mainFont != null) {</span>
+<span class="nc" id="L551">            mainFont.dispose();</span>
+<span class="nc" id="L552">            shopFont.dispose();</span>
+        }
+
+<span class="fc" id="L555">        playButtonTexture.dispose();</span>
+<span class="fc" id="L556">        returnToMenuButtonTexture.dispose();</span>
+<span class="fc" id="L557">        resumeButtonTexture.dispose();</span>
+<span class="fc" id="L558">        menuText.dispose();</span>
+<span class="fc" id="L559">        pausedText.dispose();</span>
+<span class="fc" id="L560">    }</span>
+
+    public Sprite getHoverSubmitSprite() {
+<span class="nc" id="L563">    return hoverSubmitSprite;</span>
+    }
+
+    public Texture getHoverSubmitTexture() {
+<span class="nc" id="L567">        return hoverSubmitTexture;</span>
+    }
+
+    public Sprite getSubmitSprite() {
+<span class="nc" id="L571">        return SubmitSprite;</span>
+    }
+
+    public Texture getSubmitTexture() {
+<span class="nc" id="L575">        return SubmitTexture;</span>
+    }
+
+    public Sprite getRightArrowSprite() {
+<span class="nc" id="L579">        return RightArrowSprite;</span>
+    }
+
+    public Texture getRightArrowTexture() {
+<span class="nc" id="L583">        return RightArrowTexture;</span>
+    }
+
+    public Sprite getLeftArrowSprite() {
+<span class="nc" id="L587">        return LeftArrowSprite;</span>
+    }
+
+    public Texture getLeftArrowTexture() {
+<span class="nc" id="L591">        return LeftArrowTexture;</span>
+    }
+
+    public Sprite getNextButtonSprite() {
+<span class="nc" id="L595">        return nextButtonSprite;</span>
+    }
+
+    public Texture getNextButtonTexture() {
+<span class="nc" id="L599">        return nextButtonTexture;</span>
+    }
+
+    public Sprite gethoverNextButtonSprite() {
+<span class="nc" id="L603">        return hovernextButtonSprite;</span>
+    }
+
+    public Texture gethoverNextButtonTexture() {
+<span class="nc" id="L607">        return hovernextButtonTexture;</span>
+    }
+
+    public BitmapFont getShopFont() {
+<span class="nc" id="L611">        return shopFont;</span>
+    }
+
+    public void setShopFont(BitmapFont shopfont) {
+<span class="nc" id="L615">        this.shopFont = shopfont;</span>
+<span class="nc" id="L616">    }</span>
+
+    public Sprite getuncreditsButtonSprite() {
+<span class="nc" id="L619">        return uncreditsButtonSprite;</span>
+    }
+
+    public Texture getuncreditsButtonTexture() {
+<span class="nc" id="L623">        return uncreditsButtonTexture;</span>
+    }
+
+    public Sprite getcreditsButtonSprite() {
+<span class="nc" id="L627">        return creditsButtonSprite;</span>
+    }
+
+    public Texture getcreditsButtonTexture() {
+<span class="nc" id="L631">        return creditsButtonTexture;</span>
+    }
+
+    public Sprite getTwoRightArrowSprite() {
+<span class="nc" id="L635">        return TwoRightArrowSprite;</span>
+    }
+
+    public Texture getTwoRightArrowTexture() {
+<span class="nc" id="L639">        return TwoRightArrowTexture;</span>
+    }
+
+    public Sprite getTwoLeftArrowSprite() {
+<span class="nc" id="L643">        return TwoLeftArrowSprite;</span>
+    }
+
+    public Texture getTwoLeftArrowTexture() {
+<span class="nc" id="L647">        return TwoLeftArrowTexture;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

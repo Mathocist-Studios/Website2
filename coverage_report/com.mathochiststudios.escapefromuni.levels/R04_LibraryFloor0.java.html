@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>R04_LibraryFloor0.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.levels</a> &gt; <span class="el_source">R04_LibraryFloor0.java</span></div><h1>R04_LibraryFloor0.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.levels;
+
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Rectangle;
+import com.mathochiststudios.escapefromuni.Game;
+import com.mathochiststudios.escapefromuni.collectibles.BasementKey;
+import com.mathochiststudios.escapefromuni.entities.InteractableEntity.VendingMachine;
+import com.mathochiststudios.escapefromuni.entities.Player;
+import com.mathochiststudios.escapefromuni.entities.Receptionist;
+import com.mathochiststudios.escapefromuni.levels.LevelDoors.LibraryBasementDoor;
+import com.mathochiststudios.escapefromuni.levels.LevelDoors.LibraryDoor;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
+import java.util.ArrayList;
+
+/**
+ * The LibraryFloor0 class represents the ground floor of the Library level, floor 0.
+ */
+public class R04_LibraryFloor0 extends Level{
+
+    // Receptionist entity created.
+<span class="fc" id="L23">    private final Texture receptionistTexture = new Texture(&quot;entities/receptionist.png&quot;);</span>
+<span class="fc" id="L24">    private final Receptionist receptionist = new Receptionist(receptionistTexture, 35, 24, 2f, 1, 1, 34, 36);</span>
+
+    // Door constructed, to block the path of the player.
+<span class="fc" id="L27">    private final LibraryDoor libraryDoor = new LibraryDoor();</span>
+<span class="fc" id="L28">    private final LibraryBasementDoor libraryBasementDoor = new LibraryBasementDoor();</span>
+
+<span class="fc" id="L30">    private final BasementKey basementKey = new BasementKey();</span>
+
+    private final VendingMachine vendingMachine;
+
+    /**
+     * Constructs a new LibraryFloor0 with its name (path), in addition to start and end coordinates.
+     */
+    public R04_LibraryFloor0(Game game) {
+<span class="fc" id="L38">        super(game);</span>
+
+        // Name of the level.
+<span class="fc" id="L41">        this.mapName = &quot;maps/libraryfloor0.tmx&quot;;</span>
+
+<span class="fc" id="L43">        levelCoins = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L44">        levelSpeedPowerups = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L45">        levelEnemies = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L46">        levelInteractableEntities = new ArrayList&lt;&gt;();</span>
+
+        // Tile that the player spawns at when first entering the level, or tile that takes player to previous level.
+<span class="fc" id="L49">        this.startX = 3;</span>
+<span class="fc" id="L50">        this.startY = 23;</span>
+
+        // Tile that takes player to next level, or starting tile if the player re-enters the level.
+<span class="fc" id="L53">        this.endX = 4;</span>
+<span class="fc" id="L54">        this.endY = 3;</span>
+
+        // Tile that the player is moved to when entering the side level
+<span class="fc" id="L57">        this.sideX = 22;</span>
+<span class="fc" id="L58">        this.sideY = 6;</span>
+
+<span class="fc" id="L60">        this.side2X = 37;</span>
+<span class="fc" id="L61">        this.side2Y = 17;</span>
+
+<span class="fc" id="L63">        vendingMachine = new VendingMachine(game, 18, 24, 2f);</span>
+<span class="fc" id="L64">        this.levelInteractableEntities.add(vendingMachine);</span>
+
+<span class="fc" id="L66">        levelCoins = super.generateLevelCoins(new int[][]{{21, 18}}); // this is just better</span>
+
+<span class="fc" id="L68">    }</span>
+
+    // To be invoked in Game to update the entities on this level, when it is the active level.
+    public void update(float deltaTime, Player player) {
+        // Updates the position and logic of the receptionist.
+<span class="fc" id="L73">        this.receptionist.update(deltaTime);</span>
+<span class="fc" id="L74">        this.libraryDoor.update(player, this);</span>
+<span class="fc" id="L75">        this.libraryBasementDoor.update(player, this);</span>
+<span class="fc" id="L76">        this.receptionist.update(deltaTime, player, this);</span>
+
+<span class="fc" id="L78">        this.basementKey.update(player);</span>
+<span class="fc" id="L79">    }</span>
+
+    // To be invoked in Game to draw the entities on this level, when it is the active level.
+    public void draw(SpriteBatch batch) {
+        // Draws the receptionist.
+<span class="nc" id="L84">        this.receptionist.draw(batch);</span>
+<span class="nc" id="L85">        this.basementKey.draw(batch);</span>
+<span class="nc" id="L86">    }</span>
+
+    // To be invoked in Game to check collision between the player sprite and the entities on this level.
+    public boolean collides(Player player) {
+//        Rectangle receptionistRectangle = new Rectangle(receptionist.getSprite().getX(), receptionist.getSprite().getY(), 1,1);
+//        return receptionistRectangle.overlaps(player.getMoneyRectangle());
+<span class="nc" id="L92">        return false;</span>
+    }
+
+    @Override
+    public void onEnter(TiledMapTileLayer mapCollisionLayer, ArrayList&lt;Rectangle&gt; mapCollisions, Player p) {
+
+<span class="fc" id="L98">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

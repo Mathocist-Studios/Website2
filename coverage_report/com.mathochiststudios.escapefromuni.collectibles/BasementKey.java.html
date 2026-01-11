@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BasementKey.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.collectibles</a> &gt; <span class="el_source">BasementKey.java</span></div><h1>BasementKey.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.collectibles;
+
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+import com.mathochiststudios.escapefromuni.entities.Player;
+import com.mathochiststudios.escapefromuni.entities.PlayerInventory.InventoryObject;
+
+public class BasementKey {
+
+<span class="fc" id="L12">    private final Texture texture = new Texture(&quot;basement_key.png&quot;);</span>
+<span class="fc" id="L13">    private final Sprite sprite = new Sprite(texture);</span>
+
+<span class="fc" id="L15">    private final int[] spawn = {38, 26}; // Fixed spawn location for the Rucksack</span>
+
+    private final Rectangle rectangle;
+    private boolean isDisposed;
+
+<span class="fc" id="L20">    public BasementKey() {</span>
+<span class="fc" id="L21">        this.isDisposed = false;</span>
+<span class="fc" id="L22">        this.sprite.setSize(1, 1);</span>
+<span class="fc" id="L23">        this.rectangle = new Rectangle(this.spawn[0], this.spawn[1], 1, 1);</span>
+<span class="fc" id="L24">        this.sprite.setX(this.spawn[0]);</span>
+<span class="fc" id="L25">        this.sprite.setY(this.spawn[1]);</span>
+<span class="fc" id="L26">    }</span>
+
+    // Now need to set up the interaction between the player and the LibraryCard.
+    public boolean isCollidingWithPlayer(Player player) {
+<span class="fc" id="L30">        return this.rectangle.overlaps(player.getMoneyRectangle());</span>
+    }
+
+    /**
+     * Updates the logic of the LibraryCard, to be invoked every frame.
+     *
+     * @param player is Player player, the player class.
+     */
+    public void update(Player player) {
+        // Interaction between the player and the LibraryCard checked every frame.
+<span class="pc bpc" id="L40" title="1 of 4 branches missed.">        if (this.isCollidingWithPlayer(player) &amp;&amp; !this.isDisposed) {</span>
+<span class="fc" id="L41">            this.pickUp(player);</span>
+        }
+<span class="fc" id="L43">    }</span>
+
+    /**
+     * This method is used to simulate the player picking up the LibraryCard.
+     * To be invoked when the player collides with the LibraryCard.
+     *
+     * @param player is Player player, the player class.
+     */
+    private void pickUp(Player player) {
+<span class="fc" id="L52">        player.getInventory().addItem(InventoryObject.BASEMENT_KEY);</span>
+<span class="fc" id="L53">        this.isDisposed = true;</span>
+<span class="fc" id="L54">        player.getEventsCounter().foundBasementKey();</span>
+<span class="fc" id="L55">    }</span>
+
+    /**
+     * This draws the LibraryCard onto the screen.
+     * To be invoked every frame, until the LibraryCard is collected by the player.
+     *
+     * @param batch is the SpriteBatch.
+     */
+    public void draw(SpriteBatch batch) {
+        // i.e. if the texture has been disposed with don't try to draw it.
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (!this.isDisposed) {</span>
+<span class="nc" id="L66">            this.sprite.draw(batch);</span>
+        }
+<span class="nc" id="L68">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Receptionist.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.entities</a> &gt; <span class="el_source">Receptionist.java</span></div><h1>Receptionist.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.entities;
+
+import com.badlogic.gdx.graphics.Texture;
+import com.mathochiststudios.escapefromuni.UI.NotificationSystem.Notification;
+import com.mathochiststudios.escapefromuni.UI.NotificationSystem.NotificationType;
+import com.mathochiststudios.escapefromuni.entities.PlayerInventory.InventoryObject;
+import com.mathochiststudios.escapefromuni.levels.Level;
+
+public class Receptionist extends XAxisSlidingEntity{
+
+    public Receptionist(Texture texture, float initialX, float initialY, float speed, float width, float height, int x1, int x2) {
+<span class="fc" id="L12">        super(texture, initialX, initialY, speed, width, height, x1, x2);</span>
+<span class="fc" id="L13">    }</span>
+
+    public void update(float deltaTime, Player player, Level level) {
+        // Checks for collision between player and receptionist, and if player has wallet then some logic.
+<span class="fc" id="L17">        this.handInWallet(player, level);</span>
+        // Created the updated x value of the sprite, given the speed it is moving and the time that has passed.
+<span class="fc" id="L19">        float updatedX = this.sprite.getX() + (speed * deltaTime);</span>
+<span class="pc bpc" id="L20" title="1 of 2 branches missed.">        if (updatedX &lt; this.x1) {</span>
+<span class="nc" id="L21">            updatedX = this.x1;</span>
+<span class="nc" id="L22">            this.reverseMovement();</span>
+        }
+        // If the x value has passed to the right of x2 (i.e. is greater than) then the x value is set to x2 and its
+        // speed is reversed.
+<span class="pc bpc" id="L26" title="1 of 2 branches missed.">        else if (updatedX + this.sprite.getWidth() + (this.speed * deltaTime) &gt; this.x2) {</span>
+<span class="nc" id="L27">            updatedX = this.x2 - this.sprite.getWidth();</span>
+<span class="nc" id="L28">            this.reverseMovement();</span>
+        }
+<span class="fc" id="L30">        this.sprite.setX(updatedX);</span>
+<span class="fc" id="L31">    }</span>
+
+    /**
+     * Handles the logic for handing in the wallet to the receptionist.
+     * @param player The player entity.
+     * @param level The current level.
+     */
+    public void handInWallet(Player player, Level level) {
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        if (this.isCollidingWithPlayer(player.getMoneyRectangle())) {</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">            if (player.getInventory().hasItem(InventoryObject.WALLET)) {</span>
+                // Add to hidden events encountered, as this is a hidden event.
+<span class="fc" id="L42">                player.getEventsCounter().handedInWallet();</span>
+<span class="fc" id="L43">                player.addCoins(3);</span>
+<span class="fc" id="L44">                player.getInventory().removeItem(InventoryObject.WALLET);</span>
+                // Time + 30s
+<span class="fc" id="L46">                Notification notification = new Notification(</span>
+                    &quot;You handed in the lost wallet to the receptionist (+3 Coins)!&quot;,
+                    5f,
+                    NotificationType.SPEECH,
+<span class="fc" id="L50">                    level.getGame().getTextureManager().getGameSmallFont()</span>
+                );
+<span class="fc" id="L52">                level.getGame().getHud().getNotificationManager().addNotification(notification);</span>
+            }
+        }
+<span class="fc" id="L55">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BusLevel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.levels</a> &gt; <span class="el_source">BusLevel.java</span></div><h1>BusLevel.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.levels;
+
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Rectangle;
+import com.mathochiststudios.escapefromuni.Game;
+import com.mathochiststudios.escapefromuni.UI.NotificationSystem.Notification;
+import com.mathochiststudios.escapefromuni.UI.NotificationSystem.NotificationType;
+import com.mathochiststudios.escapefromuni.entities.Enemy.EnemyAI.EnemyAI;
+import com.mathochiststudios.escapefromuni.entities.Enemy.Friend;
+import com.mathochiststudios.escapefromuni.entities.InteractableEntity.Bus;
+import com.mathochiststudios.escapefromuni.entities.Player;
+
+import java.util.ArrayList;
+
+public class BusLevel extends Level {
+
+    private final Friend friend;
+    private final Bus bus;
+
+    public BusLevel(Game game) {
+<span class="fc" id="L23">        super(game);</span>
+
+<span class="fc" id="L25">        mapName = &quot;maps/BusLevel.tmx&quot;;</span>
+
+<span class="fc" id="L27">        levelCoins = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L28">        levelSpeedPowerups = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L29">        levelEnemies = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L30">        levelInteractableEntities = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L32">        startX = 1;</span>
+<span class="fc" id="L33">        startY = 17;</span>
+
+<span class="fc" id="L35">        endX = 2;</span>
+<span class="fc" id="L36">        endY = 3;</span>
+
+<span class="fc" id="L38">        sideX = 1;</span>
+<span class="fc" id="L39">        sideY = 15;</span>
+
+<span class="fc" id="L41">        side2X = 33;</span>
+<span class="fc" id="L42">        side2Y = 2;</span>
+
+<span class="fc" id="L44">        friend = new Friend(</span>
+<span class="fc" id="L45">            this.getGame(),</span>
+            new Texture(&quot;prototype_character.png&quot;),
+            1,
+            20,
+            EnemyAI.FRIEND
+        );
+<span class="fc" id="L51">        levelEnemies.add(friend);</span>
+<span class="fc" id="L52">        friend.setDead(true);</span>
+
+<span class="fc" id="L54">        bus = new Bus(this.getGame(), -10, 5, 3f, new float[]{7f, 5f});</span>
+<span class="fc" id="L55">        levelInteractableEntities.add(bus);</span>
+
+<span class="fc" id="L57">        levelCoins = super.generateLevelCoins(new int[][]{{2, 23}, {14, 28}}); // this is just better</span>
+
+<span class="fc" id="L59">    }</span>
+
+    @Override
+    public void update(float deltaTime, Player player) {
+<span class="fc" id="L63">        this.friend.update(deltaTime, this, player);</span>
+<span class="fc" id="L64">        this.bus.update(deltaTime, this);</span>
+<span class="fc" id="L65">    }</span>
+
+    @Override
+    public void draw(SpriteBatch batch) {
+
+<span class="nc" id="L70">    }</span>
+
+    @Override
+    public boolean collides(Player player) {
+<span class="nc" id="L74">        return false;</span>
+    }
+
+    @Override
+    public void onEnter(TiledMapTileLayer mapCollisionLayer, ArrayList&lt;Rectangle&gt; mapCollisions, Player p) {
+
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        if (!p.getEventsCounter().hasMadeItToBusStop()) {</span>
+<span class="fc" id="L81">            Notification notification = new Notification(</span>
+                &quot;Make it to the bus&quot;,
+                5f,
+                NotificationType.ACHIEVEMENT,
+<span class="fc" id="L85">                this.getGame().getTextureManager().getGameSmallFont()</span>
+            );
+<span class="fc" id="L87">            this.getGame().getHud().getNotificationManager().addNotification(notification);</span>
+        }
+
+<span class="fc" id="L90">        p.getEventsCounter().madeItToBusStop();</span>
+
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        if (!p.getEventsCounter().hasFoundFriend()) {</span>
+<span class="fc" id="L93">            return;</span>
+        }
+
+<span class="nc bnc" id="L96" title="All 4 branches missed.">        if (this.getGame().friendFollowing &amp;&amp; this.getGame().friendLocation != this) {</span>
+<span class="nc" id="L97">            this.getGame().friendLocation = this;</span>
+<span class="nc" id="L98">            this.friend.setEnemyX(p.getMoneySprite().getX());</span>
+<span class="nc" id="L99">            this.friend.setEnemyY(p.getMoneySprite().getY() + 1.0f);</span>
+<span class="nc" id="L100">            this.friend.setDead(false);</span>
+<span class="nc" id="L101">            return;</span>
+        }
+
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        this.friend.setDead(this.getGame().friendLocation != this);</span>
+
+<span class="nc" id="L106">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

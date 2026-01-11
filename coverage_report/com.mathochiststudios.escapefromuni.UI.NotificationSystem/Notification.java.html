@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Notification.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.UI.NotificationSystem</a> &gt; <span class="el_source">Notification.java</span></div><h1>Notification.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.UI.NotificationSystem;
+
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.mathochiststudios.escapefromuni.Tests.HeadlessShapeRenderer;
+import com.mathochiststudios.escapefromuni.Tests.IShapeRenderer;
+import com.mathochiststudios.escapefromuni.Tests.LiveShapeRenderer;
+
+public class Notification {
+
+    private final String message;
+    private final double duration;
+    private final NotificationType type;
+
+<span class="fc" id="L19">    private double startTimeMillis = 0;</span>
+    private IShapeRenderer shapeRenderer;
+    private final BitmapFont font;
+
+<span class="fc" id="L23">    public Notification(String message, double duration, NotificationType type, BitmapFont font) {</span>
+<span class="fc" id="L24">        this.message = message;</span>
+<span class="fc" id="L25">        this.duration = duration;</span>
+<span class="fc" id="L26">        this.type = type;</span>
+        try {
+<span class="nc" id="L28">            shapeRenderer = new LiveShapeRenderer();</span>
+<span class="fc" id="L29">        } catch (GdxRuntimeException e) {</span>
+<span class="fc" id="L30">            shapeRenderer = new HeadlessShapeRenderer();</span>
+<span class="nc" id="L31">        }</span>
+<span class="fc" id="L32">        this.font = font;</span>
+<span class="fc" id="L33">    }</span>
+
+    public void start(double currentTime) {
+<span class="nc bnc" id="L36" title="All 2 branches missed.">        if (!(startTimeMillis == 0)) {</span>
+<span class="nc" id="L37">            return; // already started</span>
+        }
+<span class="nc" id="L39">        this.startTimeMillis = currentTime;</span>
+<span class="nc" id="L40">    }</span>
+
+    public boolean isExpired() {
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (startTimeMillis == 0) {</span>
+<span class="nc" id="L44">            return false; // not started yet</span>
+        }
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        return System.currentTimeMillis() - startTimeMillis &gt;= duration * 1000L;</span>
+    }
+
+    public String getMessage() {
+<span class="nc" id="L50">        return message;</span>
+    }
+
+    public double getDuration() {
+<span class="nc" id="L54">        return duration;</span>
+    }
+
+    public NotificationType getType() {
+<span class="nc" id="L58">        return type;</span>
+    }
+
+    private void render_as_hint(SpriteBatch batch, OrthographicCamera camera, double offsetY) {
+        // Specific rendering logic for hint notifications
+        // same as speech but with hint icon in the bubble TODO
+<span class="nc" id="L64">        render_as_speech(batch, camera, offsetY);</span>
+<span class="nc" id="L65">    }</span>
+
+    private void render_as_speech(SpriteBatch batch, OrthographicCamera camera, double offsetY) {
+
+<span class="nc" id="L69">        float opacity = 0.7f;</span>
+
+        // Specific rendering logic for speech notifications
+<span class="nc" id="L72">        GlyphLayout layout = new GlyphLayout(font, message);</span>
+
+        // draw speech bubble in center top
+<span class="nc" id="L75">        float padding = 40.0f;</span>
+<span class="nc" id="L76">        float bubble_width = layout.width + padding * 2;</span>
+<span class="nc" id="L77">        float bubble_height = layout.height + padding * 2;</span>
+<span class="nc" id="L78">        float bubble_x = (camera.viewportWidth - bubble_width) / 2.0f;</span>
+        // float bubble_y = camera.viewportHeight - bubble_height - 40.0f;
+<span class="nc" id="L80">        float bubble_y = (float) (40.0 + offsetY); // bottom of the screen</span>
+<span class="nc" id="L81">        shapeRenderer.setProjectionMatrix(camera.combined);</span>
+<span class="nc" id="L82">        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);</span>
+<span class="nc" id="L83">        shapeRenderer.setColor(0, 0, 0, opacity);</span>
+<span class="nc" id="L84">        shapeRenderer.rect(bubble_x, bubble_y, bubble_width, bubble_height);</span>
+<span class="nc" id="L85">        shapeRenderer.end();</span>
+
+<span class="nc" id="L87">        batch.begin();</span>
+<span class="nc" id="L88">        font.draw(batch, message, bubble_x + padding, bubble_y + bubble_height - padding);</span>
+<span class="nc" id="L89">        batch.end();</span>
+
+        // draw carriage return arrow below speech bubble using shapeRenderer
+<span class="nc" id="L92">        shapeRenderer.setProjectionMatrix(camera.combined);</span>
+<span class="nc" id="L93">        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);</span>
+<span class="nc" id="L94">        shapeRenderer.setColor(1, 1, 1, opacity);</span>
+<span class="nc" id="L95">        float arrow_x = camera.viewportWidth / 2.0f;</span>
+<span class="nc" id="L96">        float arrow_y = (float) (bubble_y + 5.0f * Math.sin(System.currentTimeMillis() / 200.0));</span>
+<span class="nc" id="L97">        shapeRenderer.triangle(arrow_x - 15, arrow_y + 15, arrow_x + 15, arrow_y + 15, arrow_x, arrow_y);</span>
+<span class="nc" id="L98">        shapeRenderer.end();</span>
+<span class="nc" id="L99">    }</span>
+
+    private void render_as_achievement(SpriteBatch batch, OrthographicCamera camera) {
+        // Specific rendering logic for achievement notifications
+        // notif. rendered bottom right like a steam achievement popup
+
+<span class="nc" id="L105">        GlyphLayout layout = new GlyphLayout(font, message);</span>
+<span class="nc" id="L106">        float padding = 20.0f;</span>
+<span class="nc" id="L107">        float bubble_width = layout.width + padding * 2;</span>
+<span class="nc" id="L108">        float bubble_height = layout.height + padding * 2;</span>
+<span class="nc" id="L109">        float bubble_x = camera.viewportWidth - bubble_width - 20.0f;</span>
+
+        // slide in from bottom for first 20% of duration then stay for 60% then slide out for last 20%
+<span class="nc" id="L112">        float timeElapsed = (float)(System.currentTimeMillis() - startTimeMillis);</span>
+<span class="nc" id="L113">        float bubble_y = getAchievementBubbleY(timeElapsed, bubble_height);</span>
+
+<span class="nc" id="L115">        shapeRenderer.setProjectionMatrix(camera.combined);</span>
+<span class="nc" id="L116">        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);</span>
+<span class="nc" id="L117">        shapeRenderer.setColor(0, 0, 0, 0.8f);</span>
+<span class="nc" id="L118">        shapeRenderer.rect(bubble_x, bubble_y, bubble_width, bubble_height);</span>
+<span class="nc" id="L119">        shapeRenderer.end();</span>
+
+<span class="nc" id="L121">        batch.begin();</span>
+<span class="nc" id="L122">        font.draw(batch, message, bubble_x + padding, bubble_y + bubble_height - padding);</span>
+<span class="nc" id="L123">        batch.end();</span>
+<span class="nc" id="L124">    }</span>
+
+    private float getAchievementBubbleY(float timeElapsed, float bubble_height) {
+<span class="nc" id="L127">        float totalDuration = (float)(duration * 1000L);</span>
+        float bubble_y;
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (timeElapsed &lt; totalDuration * 0.2f) {</span>
+<span class="nc" id="L130">            float progress = timeElapsed / (totalDuration * 0.2f);</span>
+<span class="nc" id="L131">            bubble_y = -bubble_height + progress * bubble_height;</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        } else if (timeElapsed &gt; totalDuration * 0.8f) {</span>
+<span class="nc" id="L133">            float progress = (timeElapsed - totalDuration * 0.8f) / (totalDuration * 0.2f);</span>
+<span class="nc" id="L134">            bubble_y = -progress * bubble_height;</span>
+<span class="nc" id="L135">        } else {</span>
+<span class="nc" id="L136">            bubble_y = 0;</span>
+        }
+<span class="nc" id="L138">        return bubble_y;</span>
+    }
+
+    public void render(SpriteBatch batch, OrthographicCamera camera, double offsetY) {
+        // Rendering logic based on notification type
+<span class="nc bnc" id="L143" title="All 4 branches missed.">        switch (type) {</span>
+<span class="nc" id="L144">            case HINT -&gt; render_as_hint(batch, camera, offsetY);</span>
+<span class="nc" id="L145">            case SPEECH -&gt; render_as_speech(batch, camera, offsetY);</span>
+<span class="nc" id="L146">            case ACHIEVEMENT -&gt; render_as_achievement(batch, camera);</span>
+        }
+<span class="nc" id="L148">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

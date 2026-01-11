@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Quest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.UI.QuestSystem</a> &gt; <span class="el_source">Quest.java</span></div><h1>Quest.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.UI.QuestSystem;
+
+import com.mathochiststudios.escapefromuni.Game;
+
+/**
+ * Abstract class representing a quest in the game.
+ */
+public abstract class Quest {
+
+    private final String title;
+    private final int level;
+
+<span class="fc" id="L13">    public Quest(String title, int level) {</span>
+<span class="fc" id="L14">        this.title = title;</span>
+<span class="fc" id="L15">        this.level = level;</span>
+<span class="fc" id="L16">    }</span>
+
+    public String getTitle() {
+<span class="nc" id="L19">        return title;</span>
+    }
+
+    /**
+     * Returns the level associated with this quest.
+     * &lt;br&gt;
+     * Level numbers correspond to sub-main quest levels &lt;br&gt;
+     * i.e. if a level 3 quest is currently active at the top of the main quest stack,
+     * then a level 2 quest cannot be added until the level 3 quest is completed.
+     *
+     * @return the level number
+     */
+    public int getLevel() {
+<span class="nc" id="L32">        return level;</span>
+    }
+
+    /**
+     * Checks if the quest is completed based on the current game state.
+     * &lt;br&gt;
+     * This method must be implemented by subclasses to define specific completion criteria.
+     *
+     * @param game the current game instance
+     * @return true if the quest is completed, false otherwise
+     */
+    public abstract boolean isCompleted(Game game);
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

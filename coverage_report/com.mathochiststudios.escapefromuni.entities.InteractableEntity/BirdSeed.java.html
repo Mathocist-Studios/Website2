@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BirdSeed.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.entities.InteractableEntity</a> &gt; <span class="el_source">BirdSeed.java</span></div><h1>BirdSeed.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.entities.InteractableEntity;
+
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.mathochiststudios.escapefromuni.Game;
+import com.mathochiststudios.escapefromuni.entities.Player;
+import com.mathochiststudios.escapefromuni.levels.Level;
+
+/**
+ * BirdSeed is an interactable entity that can be placed down to attract certain enemies.
+ * &lt;br&gt;
+ * Currently, it is used to attract ducks in the Lake level.
+ * &lt;br&gt;
+ * There is no real reason why its an interactable entity since the player cannot interact with it after placing it down.
+ * im just slightly lazy at this point in development.
+ */
+public class BirdSeed extends InteractableEntity {
+
+    public BirdSeed(Game game, float x, float y, float interactionRadius) {
+<span class="fc" id="L20">        super(game, new Texture(&quot;birdseed.png&quot;), x, y, 1, 1, interactionRadius, false);</span>
+<span class="fc" id="L21">    }</span>
+
+    @Override
+    public void update(float deltaTime, Level level) {
+
+<span class="nc" id="L26">    }</span>
+
+    @Override
+    public void onInteract(Player p, Level level) {
+
+<span class="nc" id="L31">    }</span>
+
+    @Override
+    public void withinInteractionRadius(Player p, Level level, SpriteBatch batch) {
+
+<span class="nc" id="L36">    }</span>
+
+    @Override
+    public void render(SpriteBatch batch) {
+<span class="nc" id="L40">        batch.draw(getTexture(), getEntityX(), getEntityY(), getEntityWidth(), getEntityHeight());</span>
+<span class="nc" id="L41">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

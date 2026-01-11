@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LakeLevel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.levels</a> &gt; <span class="el_source">LakeLevel.java</span></div><h1>LakeLevel.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.levels;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Rectangle;
+import com.mathochiststudios.escapefromuni.Game;
+import com.mathochiststudios.escapefromuni.entities.Enemy.Duck;
+import com.mathochiststudios.escapefromuni.entities.Enemy.EnemyAI.EnemyAI;
+import com.mathochiststudios.escapefromuni.entities.Enemy.Friend;
+import com.mathochiststudios.escapefromuni.entities.InteractableEntity.BirdSeed;
+import com.mathochiststudios.escapefromuni.entities.Player;
+import com.mathochiststudios.escapefromuni.entities.PlayerInventory.InventoryObject;
+import com.mathochiststudios.escapefromuni.entities.Utils.Polygon;
+import com.mathochiststudios.escapefromuni.levels.LevelDoors.DuckBlockerP1;
+import com.mathochiststudios.escapefromuni.levels.LevelDoors.DuckBlockerP2;
+import com.mathochiststudios.escapefromuni.powerups.SpeedPowerup;
+
+import java.util.ArrayList;
+
+public class LakeLevel extends Level {
+
+    private final Friend friend;
+    private final Duck duck1;
+    private final Duck duck2;
+    private final Duck duck3;
+
+    private final DuckBlockerP1 duckBlockerP1;
+    private final DuckBlockerP2 duckBlockerP2;
+
+    private BirdSeed birdSeed;
+<span class="fc" id="L34">    private final Polygon birdSeedPlaceArea = new Polygon(new float[][]{</span>
+        {20.0f, 25.0f},
+        {28.0f, 25.0f},
+        {28.0f, 30.0f},
+        {35.0f, 30.0f},
+        {35.0f, 22.0f},
+        {20.0f, 22.0f}
+    });
+    private final Texture hintTexture;
+<span class="fc" id="L43">    private boolean isPlayerInBirdSeedArea = false;</span>
+
+    public LakeLevel(Game game) {
+<span class="fc" id="L46">        super(game);</span>
+
+<span class="fc" id="L48">        mapName = &quot;maps/Lake.tmx&quot;;</span>
+
+<span class="fc" id="L50">        levelCoins = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L51">        levelSpeedPowerups = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L52">        levelEnemies = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L53">        levelInteractableEntities = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L55">        startX = 33;</span>
+<span class="fc" id="L56">        startY = 2;</span>
+
+<span class="fc" id="L58">        endX = 2;</span>
+<span class="fc" id="L59">        endY = 3;</span>
+
+<span class="fc" id="L61">        sideX = 6;</span>
+<span class="fc" id="L62">        sideY = 20;</span>
+
+<span class="fc" id="L64">        side2X = 33;</span>
+<span class="fc" id="L65">        side2Y = 2;</span>
+
+<span class="fc" id="L67">        friend = new Friend(</span>
+<span class="fc" id="L68">            this.getGame(),</span>
+            new Texture(&quot;prototype_character.png&quot;),
+            1,
+            20,
+            EnemyAI.FRIEND
+        );
+<span class="fc" id="L74">        levelEnemies.add(friend);</span>
+
+<span class="fc" id="L76">        duck1 = new Duck(</span>
+<span class="fc" id="L77">            this.getGame(),</span>
+            new Texture(&quot;duck_spritesheet.png&quot;),
+            25,
+            27,
+            EnemyAI.DUCK,
+            birdSeed
+        );
+<span class="fc" id="L84">        levelEnemies.add(duck1);</span>
+<span class="fc" id="L85">        duck2 = new Duck(</span>
+<span class="fc" id="L86">            this.getGame(),</span>
+            new Texture(&quot;duck_spritesheet.png&quot;),
+            26,
+            25,
+            EnemyAI.DUCK,
+            birdSeed
+        );
+<span class="fc" id="L93">        levelEnemies.add(duck2);</span>
+<span class="fc" id="L94">        duck3 = new Duck(</span>
+<span class="fc" id="L95">            this.getGame(),</span>
+            new Texture(&quot;duck_spritesheet.png&quot;),
+            22,
+            28,
+            EnemyAI.DUCK,
+            birdSeed
+        );
+<span class="fc" id="L102">        levelEnemies.add(duck3);</span>
+
+<span class="fc" id="L104">        this.duckBlockerP1 = new DuckBlockerP1(birdSeed);</span>
+<span class="fc" id="L105">        this.duckBlockerP2 = new DuckBlockerP2(birdSeed);</span>
+
+<span class="fc" id="L107">        this.hintTexture = new Texture(&quot;E_key.png&quot;);</span>
+
+<span class="fc" id="L109">        levelSpeedPowerups.add(</span>
+            new SpeedPowerup(
+<span class="fc" id="L111">                this.getGame().getTextureManager().getPlanetTexture(),</span>
+<span class="fc" id="L112">                this.getGame().getTextureManager().getPlanetSound(),</span>
+                8,
+                28,
+<span class="fc" id="L115">                (float) (5 * game.getGameDifficulty().getSpeedBuffMultiplier()),</span>
+                300.0f
+            )
+        );
+
+<span class="fc" id="L120">        levelCoins = super.generateLevelCoins(new int[][]{{11, 26}}); // this is just better</span>
+
+<span class="fc" id="L122">    }</span>
+
+    @Override
+    public void update(float deltaTime, Player player) {
+<span class="fc" id="L126">        this.friend.update(deltaTime, this, player);</span>
+<span class="fc" id="L127">        this.duck1.update(deltaTime, this, player);</span>
+<span class="fc" id="L128">        this.duck2.update(deltaTime, this, player);</span>
+<span class="fc" id="L129">        this.duck3.update(deltaTime, this, player);</span>
+
+<span class="fc" id="L131">        this.duckBlockerP1.update(player, this);</span>
+<span class="fc" id="L132">        this.duckBlockerP2.update(player, this);</span>
+
+<span class="fc" id="L134">        isPlayerInBirdSeedArea = birdSeedPlaceArea.isPointInPolygon(new float[]{player.getMoneySprite().getX(), player.getMoneySprite().getY()});</span>
+
+<span class="pc bpc" id="L136" title="3 of 8 branches missed.">        if (Gdx.input.isKeyPressed(Input.Keys.E) &amp;&amp; isPlayerInBirdSeedArea &amp;&amp; birdSeed == null &amp;&amp; player.getInventory().hasItem(InventoryObject.BIRDSEED)) {</span>
+<span class="fc" id="L137">            birdSeed = new BirdSeed(</span>
+<span class="fc" id="L138">                this.getGame(),</span>
+<span class="fc" id="L139">                player.getMoneySprite().getX(),</span>
+<span class="fc" id="L140">                player.getMoneySprite().getY(),</span>
+                1.0f
+            );
+<span class="fc" id="L143">            levelInteractableEntities.add(birdSeed);</span>
+
+            // update ducks to go after the new birdseed
+<span class="fc" id="L146">            duck1.setBirdSeed(birdSeed);</span>
+<span class="fc" id="L147">            duck2.setBirdSeed(birdSeed);</span>
+<span class="fc" id="L148">            duck3.setBirdSeed(birdSeed);</span>
+
+            // update duck blockers to use the new birdseed
+<span class="fc" id="L151">            this.duckBlockerP1.setBirdSeed(birdSeed);</span>
+<span class="fc" id="L152">            this.duckBlockerP2.setBirdSeed(birdSeed);</span>
+
+<span class="fc" id="L154">            player.getInventory().removeItem(InventoryObject.BIRDSEED);</span>
+<span class="fc" id="L155">            player.getEventsCounter().movedDucks();</span>
+        }
+<span class="fc" id="L157">    }</span>
+
+    @Override
+    public void draw(SpriteBatch batch) {
+
+<span class="nc bnc" id="L162" title="All 6 branches missed.">        if (isPlayerInBirdSeedArea &amp;&amp; birdSeed == null &amp;&amp; getGame().getPlayer().getInventory().hasItem(InventoryObject.BIRDSEED)) {</span>
+<span class="nc" id="L163">            batch.draw(</span>
+                hintTexture,
+<span class="nc" id="L165">                getGame().getPlayer().getMoneySprite().getX() + (getGame().getPlayer().getMoneySprite().getWidth() - 1) / 2,</span>
+<span class="nc" id="L166">                (float) (getGame().getPlayer().getMoneySprite().getY() + getGame().getPlayer().getMoneySprite().getHeight() + 0.5 * Math.sin(System.currentTimeMillis() / 200.0)),</span>
+                1,
+                1
+            );
+        }
+
+<span class="nc" id="L172">    }</span>
+
+    @Override
+    public boolean collides(Player player) {
+<span class="nc" id="L176">        return false;</span>
+    }
+
+    @Override
+    public void onEnter(TiledMapTileLayer mapCollisionLayer, ArrayList&lt;Rectangle&gt; mapCollisions, Player p) {
+
+<span class="pc bpc" id="L182" title="1 of 2 branches missed.">        if (!p.getEventsCounter().hasFoundFriend()) {</span>
+<span class="fc" id="L183">            return;</span>
+        }
+
+<span class="nc bnc" id="L186" title="All 4 branches missed.">        if (this.getGame().friendFollowing &amp;&amp; this.getGame().friendLocation != this) {</span>
+<span class="nc" id="L187">            this.getGame().friendLocation = this;</span>
+<span class="nc" id="L188">            this.friend.setEnemyX(p.getMoneySprite().getX());</span>
+<span class="nc" id="L189">            this.friend.setEnemyY(p.getMoneySprite().getY() + 1.0f);</span>
+<span class="nc" id="L190">            this.friend.setDead(false);</span>
+<span class="nc" id="L191">            return;</span>
+        }
+
+<span class="nc bnc" id="L194" title="All 2 branches missed.">        this.friend.setDead(this.getGame().friendLocation != this);</span>
+
+<span class="nc" id="L196">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

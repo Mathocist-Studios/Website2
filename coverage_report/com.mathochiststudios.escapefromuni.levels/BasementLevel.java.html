@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BasementLevel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.levels</a> &gt; <span class="el_source">BasementLevel.java</span></div><h1>BasementLevel.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.levels;
+
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Rectangle;
+import com.mathochiststudios.escapefromuni.Game;
+import com.mathochiststudios.escapefromuni.UI.NotificationSystem.Notification;
+import com.mathochiststudios.escapefromuni.UI.NotificationSystem.NotificationType;
+import com.mathochiststudios.escapefromuni.collectibles.LibraryCard;
+import com.mathochiststudios.escapefromuni.entities.Enemy.Dean;
+import com.mathochiststudios.escapefromuni.entities.Enemy.EnemyAI.EnemyAI;
+import com.mathochiststudios.escapefromuni.entities.Player;
+import com.mathochiststudios.escapefromuni.entities.PlayerInventory.InventoryObject;
+import com.mathochiststudios.escapefromuni.powerups.SpeedPowerup;
+
+import java.util.ArrayList;
+
+public class BasementLevel extends Level {
+
+    Dean dean;
+
+    // Instantiate the LibraryCard.
+<span class="fc" id="L24">    LibraryCard libraryCard = new LibraryCard();</span>
+
+    public BasementLevel(Game game) {
+<span class="fc" id="L27">        super(game);</span>
+
+<span class="fc" id="L29">        mapName = &quot;maps/BasementLib.tmx&quot;;</span>
+
+<span class="fc" id="L31">        levelCoins = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L32">        levelSpeedPowerups = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L33">        levelEnemies = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L34">        levelInteractableEntities = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L36">        startX = 28;</span>
+<span class="fc" id="L37">        startY = 15;</span>
+
+<span class="fc" id="L39">        endX = 2;</span>
+<span class="fc" id="L40">        endY = 3;</span>
+
+<span class="fc" id="L42">        sideX = 1;</span>
+<span class="fc" id="L43">        sideY = 15;</span>
+
+<span class="fc" id="L45">        side2X = 33;</span>
+<span class="fc" id="L46">        side2Y = 2;</span>
+
+<span class="fc" id="L48">        levelSpeedPowerups.add(</span>
+            new SpeedPowerup(
+<span class="fc" id="L50">                this.getGame().getTextureManager().getPlanetTexture(),</span>
+<span class="fc" id="L51">                this.getGame().getTextureManager().getPlanetSound(),</span>
+                30,
+                3,
+<span class="fc" id="L54">                (float) (5 * game.getGameDifficulty().getSpeedBuffMultiplier()),</span>
+                300.0f
+            )
+        );
+
+        // levelCoins = Level.generateLevelCoins(38, 26); // Needs even int pairs
+<span class="fc" id="L60">        levelCoins = super.generateLevelCoins(new int[][]{{38, 26}}); // this is just better</span>
+
+<span class="fc" id="L62">        dean = new Dean(</span>
+<span class="fc" id="L63">            this.getGame(),</span>
+            new Texture(&quot;prototype_character.png&quot;),
+            1,
+            15,
+            EnemyAI.A_STAR
+        );
+
+<span class="fc" id="L70">        dean.setDead(true); // Dean starts off inactive</span>
+
+<span class="fc" id="L72">        levelEnemies.add(dean);</span>
+
+<span class="fc" id="L74">    }</span>
+
+    @Override
+    public void update(float deltaTime, Player player) {
+<span class="fc" id="L78">        this.libraryCard.update(player, this);</span>
+
+<span class="pc bpc" id="L80" title="3 of 6 branches missed.">        if (player.getInventory().hasItem(InventoryObject.KEYCARD) &amp;&amp; dean.isDead() &amp;&amp; !player.getEventsCounter().getCaughtByDean()) {</span>
+<span class="fc" id="L81">            dean.setDead(false); // Activate Dean when player has the keycard</span>
+<span class="fc" id="L82">            Notification notification = new Notification(</span>
+                &quot;Oh no, the dean has entered the basement, dont get caught!&quot;,
+                5.0f,
+                NotificationType.SPEECH,
+<span class="fc" id="L86">                this.getGame().getTextureManager().getGameSmallFont()</span>
+            );
+<span class="fc" id="L88">            this.getGame().getHud().getNotificationManager().addNotification(notification);</span>
+        }
+
+<span class="fc" id="L91">        this.dean.update(deltaTime, this, player);</span>
+<span class="fc" id="L92">    }</span>
+
+    @Override
+    public void draw(SpriteBatch batch) {
+<span class="nc" id="L96">        this.libraryCard.draw(batch);</span>
+<span class="nc" id="L97">    }</span>
+
+    @Override
+    public boolean collides(Player player) {
+<span class="nc" id="L101">        return false;</span>
+    }
+
+    @Override
+    public void onEnter(TiledMapTileLayer mapCollisionLayer, ArrayList&lt;Rectangle&gt; mapCollisions, Player p) {
+
+<span class="fc" id="L107">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

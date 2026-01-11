@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TextBox.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.UI</a> &gt; <span class="el_source">TextBox.java</span></div><h1>TextBox.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.UI;
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.mathochiststudios.escapefromuni.Tests.IStage;
+
+public class TextBox {
+
+    private final TextField textField;
+    private final Texture background;
+    private final Texture cursor;
+    private final Texture selection;
+
+<span class="fc" id="L18">    public TextBox(IStage stage, float x, float y, float width, float height) {</span>
+
+<span class="fc" id="L20">        BitmapFont font = new BitmapFont();</span>
+
+<span class="fc" id="L22">        background = createTexture((int) width, (int) height, Color.DARK_GRAY);</span>
+<span class="fc" id="L23">        cursor = createTexture(2, (int) height - 10, Color.WHITE);</span>
+<span class="fc" id="L24">        selection = createTexture(1, 1, Color.BLUE);</span>
+
+<span class="fc" id="L26">        TextField.TextFieldStyle style = new TextField.TextFieldStyle();</span>
+<span class="fc" id="L27">        style.font = font;</span>
+<span class="fc" id="L28">        style.fontColor = Color.WHITE;</span>
+<span class="fc" id="L29">        style.background = new TextureRegionDrawable(background);</span>
+<span class="fc" id="L30">        style.cursor = new TextureRegionDrawable(cursor);</span>
+<span class="fc" id="L31">        style.selection = new TextureRegionDrawable(selection);</span>
+
+<span class="fc" id="L33">        textField = new TextField(&quot;&quot;, style);</span>
+<span class="fc" id="L34">        textField.setBounds(x, y, width, height);</span>
+<span class="fc" id="L35">        textField.setMessageText(&quot;Type here...&quot;);</span>
+
+<span class="fc" id="L37">        stage.addActor(textField);</span>
+<span class="fc" id="L38">    }</span>
+
+    public String getText() {
+<span class="nc" id="L41">        return textField.getText();</span>
+    }
+
+    public void setText(String text) {
+<span class="nc" id="L45">        textField.setText(text);</span>
+<span class="nc" id="L46">    }</span>
+
+    public void setPosition(float x, float y) {
+<span class="nc" id="L49">        textField.setPosition(x, y);</span>
+<span class="nc" id="L50">    }</span>
+
+    public void setSize(float width, float height) {
+<span class="nc" id="L53">        textField.setSize(width, height);</span>
+<span class="nc" id="L54">    }</span>
+
+    public void setMaxLength(int length) {
+<span class="nc" id="L57">        textField.setMaxLength(length);</span>
+<span class="nc" id="L58">    }</span>
+
+    public TextField getActor() {
+<span class="nc" id="L61">        return textField;</span>
+    }
+
+    public void dispose() {
+<span class="nc" id="L65">        background.dispose();</span>
+<span class="nc" id="L66">        cursor.dispose();</span>
+<span class="nc" id="L67">        selection.dispose();</span>
+<span class="nc" id="L68">        textField.remove();</span>
+<span class="nc" id="L69">    }</span>
+
+    private Texture createTexture(int width, int height, Color color) {
+<span class="fc" id="L72">        Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);</span>
+<span class="fc" id="L73">        pixmap.setColor(color);</span>
+<span class="fc" id="L74">        pixmap.fill();</span>
+<span class="fc" id="L75">        Texture texture = new Texture(pixmap);</span>
+<span class="fc" id="L76">        pixmap.dispose();</span>
+<span class="fc" id="L77">        return texture;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

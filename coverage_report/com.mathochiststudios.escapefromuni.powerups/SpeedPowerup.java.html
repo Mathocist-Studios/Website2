@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SpeedPowerup.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.powerups</a> &gt; <span class="el_source">SpeedPowerup.java</span></div><h1>SpeedPowerup.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.powerups;
+
+import com.mathochiststudios.escapefromuni.entities.Player;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.audio.Sound;
+
+public class SpeedPowerup implements Powerup {
+    private float speedMult;
+    private float duration; //seconds
+    private float timeActive;
+    protected Texture texture;
+
+    protected Sound SoundEffect;
+    protected float itemX;
+    protected float itemY;
+    protected Rectangle itemCollision;
+<span class="fc" id="L19">    protected Boolean collected = false;</span>
+    private boolean speedPowerUpAdded;
+
+<span class="fc" id="L22">    public SpeedPowerup(Texture textureName, Sound sound, float x, float y, float speedMult, float duration) {</span>
+<span class="fc" id="L23">        this.speedMult = speedMult;</span>
+<span class="fc" id="L24">        this.duration = duration;</span>
+<span class="fc" id="L25">        this.timeActive = 0.0f;</span>
+<span class="fc" id="L26">        this.itemX = x;</span>
+<span class="fc" id="L27">        this.itemY = y;</span>
+<span class="fc" id="L28">        this.texture = textureName;</span>
+<span class="fc" id="L29">        this.SoundEffect = sound;</span>
+<span class="fc" id="L30">        this.itemCollision = new Rectangle(x, y, 1, 1);</span>
+<span class="fc" id="L31">    }</span>
+
+    //@Override
+    public boolean isPowerUpAdded() {
+<span class="nc" id="L35">        return isSpeedPowerUpAdded();</span>
+    }
+
+    @Override
+    public void setPowerUpAdded(boolean powerUpAdded) {
+
+<span class="nc" id="L41">    }</span>
+
+    public void setSpeedPowerUpAdded(boolean speedPowerUpAdded) {
+<span class="nc" id="L44">        this.speedPowerUpAdded = speedPowerUpAdded;</span>
+<span class="nc" id="L45">    }</span>
+
+    //if changing speed then remember it is a multiplicative change rather then linear
+    //@Override
+    public void apply(Player player) {
+<span class="fc" id="L50">        player.addSpeed(speedMult);</span>
+<span class="fc" id="L51">        player.incrementTotalSpeedPowerupsCollected();</span>
+<span class="fc" id="L52">    }</span>
+
+    //@Override
+    public void remove(Player player) {
+<span class="nc" id="L56">        player.addSpeed(-speedMult);</span>
+<span class="nc" id="L57">    }</span>
+
+    //@Override
+    public boolean isTemp() {
+<span class="nc" id="L61">        return true;</span>
+    }
+
+    // Call this each frame
+    public boolean update(Player player, float deltaTime) {
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (!isTemp()) return false;</span>
+
+<span class="nc" id="L68">        timeActive += deltaTime;</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (timeActive &gt;= duration) {</span>
+<span class="nc" id="L70">            remove(player);</span>
+<span class="nc" id="L71">            return true; // expired</span>
+        }
+<span class="nc" id="L73">        return false;</span>
+    }
+
+    public void render(SpriteBatch batch) {
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (!collected) {</span>
+<span class="nc" id="L78">            batch.draw(texture, itemX, itemY, 1, 1);</span>
+        }
+<span class="nc" id="L80">    }</span>
+
+    public void collect() {
+<span class="fc" id="L83">        collected = true;</span>
+<span class="fc" id="L84">    }</span>
+
+    public Boolean isCollected() {
+<span class="fc" id="L87">        return collected;</span>
+    }
+
+    // Removes the item texture
+    public void deleteItem() {
+<span class="nc" id="L92">        texture.dispose();</span>
+<span class="nc" id="L93">    }</span>
+
+    public Rectangle getCollider() {
+<span class="fc" id="L96">        return itemCollision;</span>
+    }
+
+    public Sound getSoundEffect() {
+<span class="fc" id="L100">        return this.SoundEffect;</span>
+    }
+
+    // Getter for speedPowerUpAdded.
+    public boolean isSpeedPowerUpAdded() {
+<span class="nc" id="L105">        return this.speedPowerUpAdded;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Dean.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.entities.Enemy</a> &gt; <span class="el_source">Dean.java</span></div><h1>Dean.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.entities.Enemy;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.mathochiststudios.escapefromuni.Game;
+import com.mathochiststudios.escapefromuni.UI.NotificationSystem.Notification;
+import com.mathochiststudios.escapefromuni.UI.NotificationSystem.NotificationType;
+import com.mathochiststudios.escapefromuni.entities.Enemy.EnemyAI.EnemyAI;
+import com.mathochiststudios.escapefromuni.entities.Enemy.EnemyAI.EnemyMoveDirection;
+import com.mathochiststudios.escapefromuni.entities.Player;
+import com.mathochiststudios.escapefromuni.levels.Level;
+
+public class Dean extends Enemy {
+
+    private final Animation&lt;TextureRegion&gt; stationaryAnimation;
+    private final Animation&lt;TextureRegion&gt; upAnimation;
+    private final Animation&lt;TextureRegion&gt; downAnimation;
+    private final Animation&lt;TextureRegion&gt; rightAnimation;
+
+    // Player starts standing still.
+<span class="fc" id="L23">    private EnemyMoveDirection moveDirection = EnemyMoveDirection.STATIONARY;</span>
+    private TextureRegion[] stationaryFrames;
+    private TextureRegion[] upFrames;
+    private TextureRegion[] downFrames;
+    private TextureRegion[] rightFrames;
+
+<span class="fc" id="L29">    private float stateTime = 0f;</span>
+
+    public Dean(Game game, Texture walkSheet, float x, float y, EnemyAI aiType) {
+<span class="fc" id="L32">        super(game, walkSheet, x, y, aiType);</span>
+
+<span class="fc" id="L34">        this.populateFrames();</span>
+<span class="fc" id="L35">        this.stationaryAnimation = new Animation&lt;&gt;(0.1f, this.stationaryFrames);</span>
+<span class="fc" id="L36">        this.upAnimation = new Animation&lt;&gt;(0.025f, this.upFrames);</span>
+<span class="fc" id="L37">        this.downAnimation = new Animation&lt;&gt;(0.025f, this.downFrames);</span>
+<span class="fc" id="L38">        this.rightAnimation = new Animation&lt;&gt;(0.025f, this.rightFrames);</span>
+
+        // Set the sprite's region to the first stationary frame so the sprite draws only the frame
+<span class="fc" id="L41">        this.getSprite().setRegion(this.stationaryAnimation.getKeyFrame(0f, true));</span>
+        // Ensure sprite flip is reset
+<span class="fc" id="L43">        this.getSprite().setFlip(false, false);</span>
+        // Ensure sprite is sized to match the enemy's collision box (world units)
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if (this.getEnemyCollision() != null) {</span>
+<span class="fc" id="L46">            this.getSprite().setSize(this.getEnemyCollision().width, this.getEnemyCollision().height);</span>
+        }
+
+<span class="fc" id="L49">        setSpeed(game.getGameDifficulty().getDeanSpeed());</span>
+<span class="fc" id="L50">    }</span>
+
+    @Override
+    public void triggerCollisionBehavior(Player player) {
+        // On collision with the player, send them back to the previous level and penalize time
+        // since dean is in the basement the previous level is the final library level
+<span class="fc" id="L56">        this.game.switchToLevel(game.currentLevel.getPrevLevel(), &quot;Side&quot;);</span>
+<span class="fc" id="L57">        player.getGameTimer().addTime(-15.0f);</span>
+<span class="fc" id="L58">        player.getEventsCounter().caughtByDean();</span>
+<span class="fc" id="L59">        Notification notification = new Notification(</span>
+            &quot;The Dean caught you in the basement! (-15s)&quot;,
+            5.0f,
+            NotificationType.SPEECH,
+<span class="fc" id="L63">            game.getTextureManager().getGameSmallFont()</span>
+        );
+<span class="fc" id="L65">        game.getHud().getNotificationManager().addNotification(notification);</span>
+<span class="fc" id="L66">        this.setDead(true); // Dean deactivates after catching the player</span>
+<span class="fc" id="L67">    }</span>
+
+    @Override
+    public void isMoving(EnemyMoveDirection direction) {
+
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if (direction != this.moveDirection) {</span>
+<span class="fc" id="L73">            this.stateTime = 0f; // Reset state time on direction change</span>
+        }
+
+<span class="fc" id="L76">        this.moveDirection = direction;</span>
+
+        // Determine the current frame based on direction and state time
+        TextureRegion currentFrame;
+<span class="pc bpc" id="L80" title="5 of 6 branches missed.">        boolean flipX = switch (direction) {</span>
+            case STATIONARY -&gt; {
+<span class="nc" id="L82">                currentFrame = this.stationaryAnimation.getKeyFrame(stateTime, true);</span>
+                // ensure not flipped
+<span class="nc" id="L84">                yield false;</span>
+            }
+            case DOWN -&gt; {
+<span class="nc" id="L87">                currentFrame = this.downAnimation.getKeyFrame(stateTime, true);</span>
+<span class="nc" id="L88">                yield false;</span>
+            }
+            case UP -&gt; {
+<span class="nc" id="L91">                currentFrame = this.upAnimation.getKeyFrame(stateTime, true);</span>
+<span class="nc" id="L92">                yield false;</span>
+            }
+            case RIGHT -&gt; {
+<span class="fc" id="L95">                currentFrame = this.rightAnimation.getKeyFrame(stateTime, true);</span>
+<span class="fc" id="L96">                yield false;</span>
+            }
+            case LEFT -&gt; {
+                // For LEFT, use the RIGHT animation frame but flip the sprite horizontally.
+<span class="nc" id="L100">                currentFrame = this.rightAnimation.getKeyFrame(stateTime, true);</span>
+<span class="nc" id="L101">                yield true;</span>
+            }
+            default -&gt; {
+<span class="nc" id="L104">                currentFrame = this.stationaryAnimation.getKeyFrame(stateTime, true);</span>
+<span class="pc" id="L105">                yield false;</span>
+            }
+        };
+
+        // Update the sprite's texture region to draw just the current frame
+<span class="fc" id="L110">        this.getSprite().setRegion(currentFrame);</span>
+        // Apply flip after setting the region so region-setting doesn't overwrite flip state
+<span class="fc" id="L112">        this.getSprite().setFlip(flipX, false);</span>
+        // Keep sprite size consistent with collision box (region doesn't change sprite size)
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">        if (this.getEnemyCollision() != null) {</span>
+<span class="fc" id="L115">            this.getSprite().setSize(this.getEnemyCollision().width, this.getEnemyCollision().height);</span>
+        }
+
+<span class="fc" id="L118">    }</span>
+
+    @Override
+    public void localUpdate(float deltaTime, Level currentLevel, Player player) {
+<span class="fc" id="L122">        stateTime += Gdx.graphics.getDeltaTime()*0.25f; // Accumulate elapsed animation time</span>
+<span class="fc" id="L123">    }</span>
+
+    // Populates stationaryFrames, upFrames, downFrames and rightFrames.
+    private void populateFrames() {
+<span class="fc" id="L127">        int ssCols = 4;</span>
+<span class="fc" id="L128">        int ssRows = 12;</span>
+
+        // Use the sprite's texture (which was provided as walkSheet in the constructor)
+<span class="fc" id="L131">        Texture spriteSheetTexture = this.getSprite().getTexture();</span>
+<span class="fc" id="L132">        TextureRegion[][] tmp = TextureRegion.split(spriteSheetTexture, spriteSheetTexture.getWidth() / ssCols, spriteSheetTexture.getHeight() / ssRows);</span>
+        // stationaryFrames setup.
+<span class="fc" id="L134">        this.stationaryFrames = new TextureRegion[2];</span>
+<span class="fc" id="L135">        int index = 0;</span>
+<span class="fc bfc" id="L136" title="All 2 branches covered.">        for (int i = 0; i &lt; 2; i ++) {</span>
+<span class="fc" id="L137">            this.stationaryFrames[index++] = tmp[0][i];</span>
+        }
+        // upFrames setup.
+<span class="fc" id="L140">        this.upFrames = new TextureRegion[4];</span>
+<span class="fc" id="L141">        index = 0;</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        for (int i = 0; i &lt; 4; i ++) {</span>
+<span class="fc" id="L143">            this.upFrames[index++] = tmp[5][i];</span>
+        }
+        // downFrames setup.
+<span class="fc" id="L146">        this.downFrames = new TextureRegion[4];</span>
+<span class="fc" id="L147">        index = 0;</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        for (int i = 0; i &lt; 4; i ++) {</span>
+<span class="fc" id="L149">            this.downFrames[index++] = tmp[3][i];</span>
+        }
+        // rightFrames setup.
+<span class="fc" id="L152">        this.rightFrames = new TextureRegion[4];</span>
+<span class="fc" id="L153">        index = 0;</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        for (int i = 0; i &lt; 4; i ++) {</span>
+<span class="fc" id="L155">            this.rightFrames[index++] = tmp[4][i];</span>
+        }
+<span class="fc" id="L157">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Friend.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.entities.Enemy</a> &gt; <span class="el_source">Friend.java</span></div><h1>Friend.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.entities.Enemy;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.mathochiststudios.escapefromuni.Game;
+import com.mathochiststudios.escapefromuni.UI.NotificationSystem.Notification;
+import com.mathochiststudios.escapefromuni.UI.NotificationSystem.NotificationType;
+import com.mathochiststudios.escapefromuni.entities.Enemy.EnemyAI.EnemyAI;
+import com.mathochiststudios.escapefromuni.entities.Enemy.EnemyAI.EnemyMoveDirection;
+import com.mathochiststudios.escapefromuni.entities.Player;
+import com.mathochiststudios.escapefromuni.levels.Level;
+
+/**
+ * Friend enemy that slows you down since you have to escort which will slow you down (negative event).
+ */
+public class Friend extends Enemy {
+
+    private final Animation&lt;TextureRegion&gt; stationaryAnimation;
+    private final Animation&lt;TextureRegion&gt; upAnimation;
+    private final Animation&lt;TextureRegion&gt; downAnimation;
+    private final Animation&lt;TextureRegion&gt; rightAnimation;
+
+    // Player starts standing still.
+<span class="fc" id="L26">    private EnemyMoveDirection moveDirection = EnemyMoveDirection.STATIONARY;</span>
+    private TextureRegion[] stationaryFrames;
+    private TextureRegion[] upFrames;
+    private TextureRegion[] downFrames;
+    private TextureRegion[] rightFrames;
+
+<span class="fc" id="L32">    private float stateTime = 0f;</span>
+<span class="fc" id="L33">    private boolean hasBeenNotifiedTooFar = false;</span>
+<span class="fc" id="L34">    private double timeSinceNotifiedTooFar = 0.0;</span>
+<span class="fc" id="L35">    private int timesOutOfRange = 0;</span>
+
+    public Friend(Game game, Texture walkSheet, float x, float y, EnemyAI aiType) {
+<span class="fc" id="L38">        super(game, walkSheet, x, y, aiType);</span>
+
+<span class="fc" id="L40">        this.populateFrames();</span>
+<span class="fc" id="L41">        this.stationaryAnimation = new Animation&lt;&gt;(0.1f, this.stationaryFrames);</span>
+<span class="fc" id="L42">        this.upAnimation = new Animation&lt;&gt;(0.025f, this.upFrames);</span>
+<span class="fc" id="L43">        this.downAnimation = new Animation&lt;&gt;(0.025f, this.downFrames);</span>
+<span class="fc" id="L44">        this.rightAnimation = new Animation&lt;&gt;(0.025f, this.rightFrames);</span>
+
+        // Set the sprite's region to the first stationary frame so the sprite draws only the frame
+<span class="fc" id="L47">        this.getSprite().setRegion(this.stationaryAnimation.getKeyFrame(0f, true));</span>
+        // Ensure sprite flip is reset
+<span class="fc" id="L49">        this.getSprite().setFlip(false, false);</span>
+        // Ensure sprite is sized to match the enemy's collision box (world units)
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">        if (this.getEnemyCollision() != null) {</span>
+<span class="fc" id="L52">            this.getSprite().setSize(this.getEnemyCollision().width, this.getEnemyCollision().height);</span>
+        }
+
+<span class="fc" id="L55">        setSpeed(game.getGameDifficulty().getFriendSpeed());</span>
+<span class="fc" id="L56">    }</span>
+
+    @Override
+<span class="nc" id="L59">    public void triggerCollisionBehavior(Player player) {}</span>
+
+    @Override
+    public void isMoving(EnemyMoveDirection direction) {
+
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (direction != this.moveDirection) {</span>
+<span class="fc" id="L65">            this.stateTime = 0f; // Reset state time on direction change</span>
+        }
+
+<span class="fc" id="L68">        this.moveDirection = direction;</span>
+
+        TextureRegion currentFrame;
+<span class="pc bpc" id="L71" title="1 of 6 branches missed.">        boolean flipX = switch (direction) {</span>
+            case STATIONARY -&gt; {
+<span class="fc" id="L73">                currentFrame = this.stationaryAnimation.getKeyFrame(stateTime, true);</span>
+                // ensure not flipped
+<span class="fc" id="L75">                yield false;</span>
+            }
+            case DOWN -&gt; {
+<span class="fc" id="L78">                currentFrame = this.downAnimation.getKeyFrame(stateTime, true);</span>
+<span class="fc" id="L79">                yield false;</span>
+            }
+            case UP -&gt; {
+<span class="fc" id="L82">                currentFrame = this.upAnimation.getKeyFrame(stateTime, true);</span>
+<span class="fc" id="L83">                yield false;</span>
+            }
+            case RIGHT -&gt; {
+<span class="fc" id="L86">                currentFrame = this.rightAnimation.getKeyFrame(stateTime, true);</span>
+<span class="fc" id="L87">                yield false;</span>
+            }
+            case LEFT -&gt; {
+                // For LEFT, use the RIGHT animation frame but flip the sprite horizontally.
+<span class="fc" id="L91">                currentFrame = this.rightAnimation.getKeyFrame(stateTime, true);</span>
+<span class="fc" id="L92">                yield true;</span>
+            }
+            default -&gt; {
+<span class="nc" id="L95">                currentFrame = this.stationaryAnimation.getKeyFrame(stateTime, true);</span>
+<span class="pc" id="L96">                yield false;</span>
+            }
+        };
+
+        // Update the sprite's texture region to draw just the current frame
+<span class="fc" id="L101">        this.getSprite().setRegion(currentFrame);</span>
+        // Apply flip after setting the region so region-setting doesn't overwrite flip state
+<span class="fc" id="L103">        this.getSprite().setFlip(flipX, false);</span>
+        // Keep sprite size consistent with collision box (region doesn't change sprite size)
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (this.getEnemyCollision() != null) {</span>
+<span class="fc" id="L106">            this.getSprite().setSize(this.getEnemyCollision().width, this.getEnemyCollision().height);</span>
+        }
+
+<span class="fc" id="L109">    }</span>
+
+    @Override
+    public void localUpdate(float deltaTime, Level currentLevel, Player player) {
+<span class="fc" id="L113">        stateTime += Gdx.graphics.getDeltaTime()*0.25f; // Accumulate elapsed animation time</span>
+
+<span class="fc" id="L115">        double dist_to_friend = Math.hypot(</span>
+<span class="fc" id="L116">            (player.getOldMoneyX() - this.getEnemyX()),</span>
+<span class="fc" id="L117">            (player.getOldMoneyY() - this.getEnemyY())</span>
+        );
+
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        currentLevel.getGame().friendFollowing = dist_to_friend &lt;= 5.0;</span>
+
+        // Initial notification when player first gets close to friend
+<span class="fc bfc" id="L123" title="All 4 branches covered.">        if (!player.getEventsCounter().hasFoundFriend() &amp;&amp; currentLevel.getGame().friendFollowing) {</span>
+<span class="fc" id="L124">            Notification notification = new Notification(</span>
+<span class="fc" id="L125">                &quot;Oh! Hey &quot; + game.getMainApp().getPlayerName() +&quot;! Are you going to the bus?\nI'm feeling really ill can you help me get there?&quot;,</span>
+                5,
+                NotificationType.SPEECH,
+<span class="fc" id="L128">                currentLevel.getGame().getTextureManager().getGameSmallFont()</span>
+            );
+<span class="fc" id="L130">            currentLevel.getGame().getHud().getNotificationManager().addNotification(notification);</span>
+        }
+
+        // Player is within range of the friend
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        if (currentLevel.getGame().friendFollowing) {</span>
+<span class="fc" id="L135">            player.getEventsCounter().foundFriend();</span>
+<span class="fc" id="L136">            this.hasBeenNotifiedTooFar = false;</span>
+<span class="fc" id="L137">            this.timesOutOfRange = 0;</span>
+<span class="fc" id="L138">            return;</span>
+        }
+
+<span class="fc" id="L141">        this.timesOutOfRange += 1;</span>
+
+        // Notify player only once when they are too far from the friend
+<span class="pc bpc" id="L144" title="2 of 4 branches missed.">        if (this.hasBeenNotifiedTooFar || !player.getEventsCounter().hasFoundFriend()) {</span>
+<span class="fc" id="L145">            return;</span>
+        }
+
+        // enforce a 5 second cooldown on notifications if player standing right on the edge of range
+        // i know its unlikely but it has already happened during testing
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        if (System.currentTimeMillis() - this.timeSinceNotifiedTooFar &lt; 5000) {</span>
+<span class="nc" id="L151">            return;</span>
+        }
+
+        // About 10 frames, protects against brief distance spikes e.g. moving rooms
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        if (this.timesOutOfRange &lt; 10) {</span>
+<span class="nc" id="L156">            return;</span>
+        }
+
+<span class="nc" id="L159">        this.hasBeenNotifiedTooFar = true;</span>
+<span class="nc" id="L160">        this.timeSinceNotifiedTooFar = System.currentTimeMillis();</span>
+<span class="nc" id="L161">        Notification notification = new Notification(</span>
+            &quot;Hey! Wait for me! I'm not feeling well...&quot;,
+            5,
+            NotificationType.SPEECH,
+<span class="nc" id="L165">            currentLevel.getGame().getTextureManager().getGameSmallFont()</span>
+        );
+<span class="nc" id="L167">        currentLevel.getGame().getHud().getNotificationManager().addNotification(notification);</span>
+<span class="nc" id="L168">    }</span>
+
+    // Populates stationaryFrames, upFrames, downFrames and rightFrames.
+    private void populateFrames() {
+<span class="fc" id="L172">        int ssCols = 4;</span>
+<span class="fc" id="L173">        int ssRows = 12;</span>
+
+        // Use the sprite's texture (which was provided as walkSheet in the constructor)
+<span class="fc" id="L176">        Texture spriteSheetTexture = this.getSprite().getTexture();</span>
+<span class="fc" id="L177">        TextureRegion[][] tmp = TextureRegion.split(spriteSheetTexture, spriteSheetTexture.getWidth() / ssCols, spriteSheetTexture.getHeight() / ssRows);</span>
+        // stationaryFrames setup.
+<span class="fc" id="L179">        this.stationaryFrames = new TextureRegion[2];</span>
+<span class="fc" id="L180">        int index = 0;</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">        for (int i = 0; i &lt; 2; i ++) {</span>
+<span class="fc" id="L182">            this.stationaryFrames[index++] = tmp[0][i];</span>
+        }
+        // upFrames setup.
+<span class="fc" id="L185">        this.upFrames = new TextureRegion[4];</span>
+<span class="fc" id="L186">        index = 0;</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">        for (int i = 0; i &lt; 4; i ++) {</span>
+<span class="fc" id="L188">            this.upFrames[index++] = tmp[5][i];</span>
+        }
+        // downFrames setup.
+<span class="fc" id="L191">        this.downFrames = new TextureRegion[4];</span>
+<span class="fc" id="L192">        index = 0;</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">        for (int i = 0; i &lt; 4; i ++) {</span>
+<span class="fc" id="L194">            this.downFrames[index++] = tmp[3][i];</span>
+        }
+        // rightFrames setup.
+<span class="fc" id="L197">        this.rightFrames = new TextureRegion[4];</span>
+<span class="fc" id="L198">        index = 0;</span>
+<span class="fc bfc" id="L199" title="All 2 branches covered.">        for (int i = 0; i &lt; 4; i ++) {</span>
+<span class="fc" id="L200">            this.rightFrames[index++] = tmp[4][i];</span>
+        }
+<span class="fc" id="L202">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

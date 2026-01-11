@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>XAxisSlidingEntity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.entities</a> &gt; <span class="el_source">XAxisSlidingEntity.java</span></div><h1>XAxisSlidingEntity.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.entities;
+
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+
+/**
+ * The XAxisSlidingEntity class is designed to be an entity that is on a slider on the x-axis.
+ * It will have a speed, two x-coordinates, a texture and dimensions.
+ */
+public class XAxisSlidingEntity {
+
+    Texture texture;
+    Sprite sprite;
+    // This is the desired movement speed for the SlidingEnemy.
+    float speed;
+    // These are the x-coordinates, dictating the path of the enemy.
+    float x1;
+    float x2;
+    float initialX;
+    float initialY;
+
+    /**
+     * Constructs a new XAxisSlidingEntity with speed, sprite, texture, width, height and two points for the enemy to bounce
+     * between.
+     *
+     * @param texture is the desired texture for the entity.
+     * @param speed is the desired speed of the enemy.
+     * @param width duh.
+     * @param height duh.
+     * @param x1 is one of the two x-coordinates for the enemy to move between. This is the left x-coord.
+     * @param x2 is one of the two x-coordinates for the enemy to move between. This is the right x-coord.
+     */
+<span class="fc" id="L35">    public XAxisSlidingEntity(Texture texture, float initialX, float initialY, float speed, float width, float height, int x1, int x2) {</span>
+<span class="fc" id="L36">        this.sprite = new Sprite(texture);</span>
+<span class="fc" id="L37">        this.speed = speed;</span>
+<span class="fc" id="L38">        this.x1 = x1;</span>
+<span class="fc" id="L39">        this.x2 = x2;</span>
+<span class="fc" id="L40">        this.initialX = initialX;</span>
+<span class="fc" id="L41">        this.initialY = initialY;</span>
+<span class="fc" id="L42">        this.sprite.setPosition(initialX, initialY);</span>
+<span class="fc" id="L43">        this.sprite.setSize(width, height);</span>
+
+        // rectangle constructed given its initial x and y and its width and height.
+        //this.rectangle = new Rectangle(this.initialX, this.initialY, width, height);
+<span class="fc" id="L47">    }</span>
+
+    /**
+     * This method is called in render every frame, to update the position of the entity using some logic.
+     *
+     * @param deltaTime is the delta.
+     */
+    public void update(float deltaTime) {
+        // Created the updated x value of the sprite, given the speed it is moving and the time that has passed.
+<span class="fc" id="L56">        float updatedX = this.sprite.getX() + (speed * deltaTime);</span>
+        // If the x value has passed to the left of x1 (i.e. is less than) then the x value is set to x1 and its speed
+        // is reversed.
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        if (updatedX &lt; this.x1) {</span>
+<span class="nc" id="L60">            updatedX = this.x1;</span>
+<span class="nc" id="L61">            this.reverseMovement();</span>
+        }
+        // If the x value has passed to the right of x2 (i.e. is greater than) then the x value is set to x2 and its
+        // speed is reversed.
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        else if (updatedX + this.sprite.getWidth() + (this.speed * deltaTime) &gt; this.x2) {</span>
+<span class="nc" id="L66">            updatedX = this.x2 - this.sprite.getWidth();</span>
+<span class="nc" id="L67">            this.reverseMovement();</span>
+        }
+<span class="fc" id="L69">        this.sprite.setX(updatedX);</span>
+<span class="fc" id="L70">    }</span>
+
+    public boolean isCollidingWithPlayer(Rectangle playerRectangle) {
+        // Construct the rectangle for the entity.
+<span class="fc" id="L74">        Rectangle entityRectangle = new Rectangle(sprite.getX(), sprite.getY(), 1, 1);</span>
+        // Return whether it overlaps the playerRectangle.
+<span class="fc" id="L76">        return entityRectangle.overlaps(playerRectangle);</span>
+    }
+
+    /**
+     * This method draws the sprite onto the screen. Called in the draw() method.
+     *
+     * @param batch is the spriteBatch.
+     */
+    public void draw(SpriteBatch batch) {
+        // Renders the sprite onto the screen using the spriteBatch.
+<span class="nc" id="L86">        this.sprite.draw(batch);</span>
+<span class="nc" id="L87">    }</span>
+
+    /**
+     * Reverses the x-axis speed of the entity.
+     */
+    public void reverseMovement() {
+<span class="nc" id="L93">        this.speed = -this.speed;</span>
+<span class="nc" id="L94">    }</span>
+
+    /**
+     * Simple getter for Sprite sprite.
+     *
+     * @return sprite.
+     */
+    public Sprite getSprite() {
+<span class="nc" id="L102">        return this.sprite;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

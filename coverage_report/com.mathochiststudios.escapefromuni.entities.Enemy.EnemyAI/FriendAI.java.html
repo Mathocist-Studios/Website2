@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FriendAI.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochiststudios.escapefromuni.entities.Enemy.EnemyAI</a> &gt; <span class="el_source">FriendAI.java</span></div><h1>FriendAI.java</h1><pre class="source lang-java linenums">package com.mathochiststudios.escapefromuni.entities.Enemy.EnemyAI;
+
+import com.mathochiststudios.escapefromuni.Game;
+import com.mathochiststudios.escapefromuni.entities.Enemy.Enemy;
+import com.mathochiststudios.escapefromuni.entities.Player;
+import com.mathochiststudios.escapefromuni.levels.Level;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+<span class="fc" id="L12">public class FriendAI implements IEnemyAI {</span>
+
+<span class="fc" id="L14">    private final ArrayList&lt;EnemyMoveDirection&gt; recentMoves = new ArrayList&lt;&gt;();</span>
+    private static final int MAX_HISTORY = 40; // increased history for better pattern detection
+
+    /**
+     * Non-mutating check whether appending newMove to recent would create a repeating pattern.
+     * Ignores STATIONARY and constant repeated chunks (e.g. RIGHT, RIGHT, RIGHT).
+     */
+    private boolean wouldCreatePattern(List&lt;EnemyMoveDirection&gt; recent, EnemyMoveDirection newMove) {
+<span class="fc bfc" id="L22" title="All 2 branches covered.">        if (newMove == EnemyMoveDirection.STATIONARY) {</span>
+<span class="fc" id="L23">            return false;</span>
+        }
+
+<span class="fc" id="L26">        ArrayList&lt;EnemyMoveDirection&gt; temp = new ArrayList&lt;&gt;(recent);</span>
+<span class="fc" id="L27">        temp.add(newMove);</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        while (temp.size() &gt; MAX_HISTORY) {</span>
+<span class="fc" id="L29">            temp.remove(0);</span>
+        }
+
+        // Check for repeating chunks of size 2..min(5, temp.size()/2)
+<span class="fc" id="L33">        int maxPattern = Math.min(5, temp.size() / 2);</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        for (int patternLength = 2; patternLength &lt;= maxPattern; patternLength++) {</span>
+<span class="fc" id="L35">            boolean patternFound = true;</span>
+            // compare last patternLength elements with the previous patternLength elements
+<span class="fc bfc" id="L37" title="All 2 branches covered.">            for (int i = 0; i &lt; patternLength; i++) {</span>
+<span class="fc" id="L38">                int idxA = temp.size() - 1 - i;</span>
+<span class="fc" id="L39">                int idxB = temp.size() - 1 - i - patternLength;</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">                if (temp.get(idxA) != temp.get(idxB)) {</span>
+<span class="fc" id="L41">                    patternFound = false;</span>
+<span class="fc" id="L42">                    break;</span>
+                }
+            }
+<span class="fc bfc" id="L45" title="All 2 branches covered.">            if (!patternFound) {</span>
+<span class="fc" id="L46">                continue;</span>
+            }
+
+            // If the detected repeating chunk is constant (all same direction), ignore it.
+<span class="fc" id="L50">            boolean allSame = true;</span>
+<span class="fc" id="L51">            EnemyMoveDirection first = temp.get(temp.size() - 1);</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">            for (int i = 1; i &lt; patternLength; i++) {</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">                if (temp.get(temp.size() - 1 - i) != first) {</span>
+<span class="fc" id="L54">                    allSame = false;</span>
+<span class="fc" id="L55">                    break;</span>
+                }
+            }
+<span class="fc bfc" id="L58" title="All 2 branches covered.">            if (allSame) {</span>
+<span class="fc" id="L59">                continue; // treat constant repetition as not a pattern</span>
+            }
+
+            // Found a non-constant repeating chunk =&gt; pattern
+<span class="fc" id="L63">            return true;</span>
+        }
+
+<span class="fc" id="L66">        return false;</span>
+    }
+
+    @Override
+    public EnemyMoveDirection update(Game game, Enemy enemy, float deltaTime, Level currentLevel, Player player, float speed) {
+<span class="fc" id="L71">        EnemyMoveDirection nextMove = evaluate_next_move(game, enemy, deltaTime, currentLevel, player, speed);</span>
+
+        // If executing nextMove would create a repeating pattern, try to pick an alternative
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if (wouldCreatePattern(recentMoves, nextMove)) {</span>
+<span class="fc" id="L75">            nextMove = chooseBreakMove(game, enemy, deltaTime, currentLevel, player, speed, nextMove);</span>
+        }
+
+        // Apply the decided move (mutate enemy position) and record it
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (nextMove != EnemyMoveDirection.STATIONARY) {</span>
+<span class="fc" id="L80">            applyMove(enemy, nextMove, deltaTime, speed);</span>
+<span class="fc" id="L81">            recentMoves.add(nextMove);</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">            if (recentMoves.size() &gt; MAX_HISTORY) {</span>
+<span class="fc" id="L83">                recentMoves.remove(0);</span>
+            }
+        }
+
+<span class="fc" id="L87">        return nextMove;</span>
+    }
+
+    /**
+     * Choose an alternative move that:
+     * - is legal (no collision),
+     * - tends to reduce Manhattan distance to the player,
+     * - does not create a repeating pattern when appended.
+     * If none suitable found, returns the originalDesired move.
+     */
+    private EnemyMoveDirection chooseBreakMove(Game game, Enemy enemy, float deltaTime, Level currentLevel, Player player, float speed, EnemyMoveDirection originalDesired) {
+        // Get current positions
+<span class="fc" id="L99">        float enemyX = enemy.getEnemyX();</span>
+<span class="fc" id="L100">        float enemyY = enemy.getEnemyY();</span>
+<span class="fc" id="L101">        float playerX = player.getMoneySprite().getX();</span>
+<span class="fc" id="L102">        float playerY = player.getMoneySprite().getY();</span>
+
+<span class="fc" id="L104">        float step = speed * deltaTime;</span>
+<span class="fc" id="L105">        boolean[] collisions = EnemyAI.getCollisions(game, step, enemy.getEnemyCollision());</span>
+
+        // Candidate directions (prefer those that reduce Manhattan distance)
+<span class="fc" id="L108">        List&lt;EnemyMoveDirection&gt; candidates = Arrays.asList(</span>
+            EnemyMoveDirection.RIGHT,
+            EnemyMoveDirection.LEFT,
+            EnemyMoveDirection.UP,
+            EnemyMoveDirection.DOWN
+        );
+
+        // Evaluate each candidate: projected Manhattan distance and validity
+<span class="fc" id="L116">        EnemyMoveDirection best = originalDesired;</span>
+<span class="fc" id="L117">        float bestDist = manhattanDist(enemyX, enemyY, playerX, playerY); // baseline (no move)</span>
+        // compute baseline after doing originalDesired if allowed
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">        if (originalDesired != EnemyMoveDirection.STATIONARY) {</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">            if (isDirectionAllowed(originalDesired, collisions)) {</span>
+<span class="fc" id="L121">                float[] p = projectedPos(enemyX, enemyY, originalDesired, step);</span>
+<span class="fc" id="L122">                bestDist = manhattanDist(p[0], p[1], playerX, playerY);</span>
+            }
+        }
+
+        // Try other candidates first (prefer moves different from originalDesired)
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        for (EnemyMoveDirection cand : candidates) {</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">            if (cand == originalDesired) continue; // try alternatives first</span>
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">            if (!isDirectionAllowed(cand, collisions)) continue;</span>
+
+<span class="fc" id="L131">            float[] proj = projectedPos(enemyX, enemyY, cand, step);</span>
+<span class="fc" id="L132">            float dist = manhattanDist(proj[0], proj[1], playerX, playerY);</span>
+
+            // Prefer moves that reduce Manhattan distance compared to baseline
+<span class="fc bfc" id="L135" title="All 2 branches covered.">            if (dist &lt;= bestDist) {</span>
+                // Ensure selecting this candidate will not create a repeating pattern
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">                if (!wouldCreatePattern(recentMoves, cand)) {</span>
+                    // pick the candidate with smallest distance
+<span class="pc bpc" id="L139" title="2 of 4 branches missed.">                    if (dist &lt; bestDist || best == originalDesired) {</span>
+<span class="fc" id="L140">                        best = cand;</span>
+<span class="fc" id="L141">                        bestDist = dist;</span>
+                    }
+                }
+            }
+<span class="fc" id="L145">        }</span>
+
+        // If we didn't find an alternative (best still originalDesired), try allowing original but verify it is legal
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        if (best == originalDesired) {</span>
+<span class="pc bpc" id="L149" title="3 of 6 branches missed.">            if (originalDesired != EnemyMoveDirection.STATIONARY &amp;&amp; isDirectionAllowed(originalDesired, collisions) &amp;&amp; !wouldCreatePattern(recentMoves, originalDesired)) {</span>
+<span class="nc" id="L150">                return originalDesired;</span>
+            }
+            // try any legal candidate even if it doesn't reduce distance, to break pattern
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">            for (EnemyMoveDirection cand : candidates) {</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">                if (!isDirectionAllowed(cand, collisions)) continue;</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">                if (!wouldCreatePattern(recentMoves, cand)) {</span>
+<span class="fc" id="L156">                    return cand;</span>
+                }
+<span class="fc" id="L158">            }</span>
+            // As a last resort, return originalDesired (may create pattern) or STATIONARY
+<span class="nc bnc" id="L160" title="All 2 branches missed.">            if (isDirectionAllowed(originalDesired, collisions)) {</span>
+<span class="nc" id="L161">                return originalDesired;</span>
+            } else {
+<span class="nc" id="L163">                return EnemyMoveDirection.STATIONARY;</span>
+            }
+        }
+
+<span class="fc" id="L167">        return best;</span>
+    }
+
+    private boolean isDirectionAllowed(EnemyMoveDirection dir, boolean[] collisions) {
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">        if (dir == EnemyMoveDirection.STATIONARY) return false;</span>
+<span class="pc bpc" id="L172" title="1 of 5 branches missed.">        return switch (dir) {</span>
+<span class="pc bpc" id="L173" title="1 of 2 branches missed.">            case RIGHT -&gt; !collisions[3];</span>
+<span class="pc bpc" id="L174" title="1 of 2 branches missed.">            case LEFT -&gt; !collisions[2];</span>
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">            case UP -&gt; !collisions[0];</span>
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">            case DOWN -&gt; !collisions[1];</span>
+<span class="nc" id="L177">            default -&gt; false;</span>
+        };
+    }
+
+    private float[] projectedPos(float x, float y, EnemyMoveDirection dir, float step) {
+<span class="pc bpc" id="L182" title="1 of 5 branches missed.">        return switch (dir) {</span>
+<span class="fc" id="L183">            case RIGHT -&gt; new float[]{x + step, y};</span>
+<span class="fc" id="L184">            case LEFT -&gt; new float[]{x - step, y};</span>
+<span class="fc" id="L185">            case UP -&gt; new float[]{x, y + step};</span>
+<span class="fc" id="L186">            case DOWN -&gt; new float[]{x, y - step};</span>
+<span class="nc" id="L187">            default -&gt; new float[]{x, y};</span>
+        };
+    }
+
+    private float manhattanDist(float x1, float y1, float x2, float y2) {
+<span class="fc" id="L192">        return Math.abs(x1 - x2) + Math.abs(y1 - y2);</span>
+    }
+
+    /**
+     * Decide the next move toward player without changing enemy position.
+     * Uses axis preference but is essentially Manhattan-friendly.
+     */
+    private EnemyMoveDirection evaluate_next_move(Game game, Enemy enemy, float deltaTime, Level currentLevel, Player player, float speed) {
+<span class="fc" id="L200">        float enemyX = enemy.getEnemyX();</span>
+<span class="fc" id="L201">        float enemyY = enemy.getEnemyY();</span>
+
+<span class="fc" id="L203">        float playerX = player.getMoneySprite().getX();</span>
+<span class="fc" id="L204">        float playerY = player.getMoneySprite().getY();</span>
+
+<span class="fc" id="L206">        boolean[] collisions = EnemyAI.getCollisions(game, speed * deltaTime, enemy.getEnemyCollision());</span>
+<span class="fc" id="L207">        float diffX = playerX - enemyX;</span>
+<span class="fc" id="L208">        float diffY = playerY - enemyY;</span>
+
+<span class="fc" id="L210">        double distance = Math.sqrt(diffX * diffX + diffY * diffY);</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">        if (distance &lt; 2.0) {</span>
+<span class="fc" id="L212">            return EnemyMoveDirection.STATIONARY;</span>
+        }
+
+<span class="fc bfc" id="L215" title="All 2 branches covered.">        if (distance &gt; 5.0) {</span>
+<span class="fc" id="L216">            return EnemyMoveDirection.STATIONARY;</span>
+        }
+
+        // Prefer the axis that reduces Manhattan distance most; tie-break toward horizontal
+<span class="fc bfc" id="L220" title="All 2 branches covered.">        if (Math.abs(diffX) &gt;= Math.abs(diffY)) {</span>
+            // prefer horizontal
+<span class="pc bpc" id="L222" title="2 of 4 branches missed.">            if (diffX &gt; 0 &amp;&amp; !collisions[3]) {</span>
+<span class="fc" id="L223">                return EnemyMoveDirection.RIGHT;</span>
+<span class="nc bnc" id="L224" title="All 4 branches missed.">            } else if (diffX &lt; 0 &amp;&amp; !collisions[2]) {</span>
+<span class="nc" id="L225">                return EnemyMoveDirection.LEFT;</span>
+<span class="nc bnc" id="L226" title="All 4 branches missed.">            } else if (diffY &gt; 0 &amp;&amp; !collisions[0]) {</span>
+<span class="nc" id="L227">                return EnemyMoveDirection.UP;</span>
+<span class="nc bnc" id="L228" title="All 4 branches missed.">            } else if (diffY &lt; 0 &amp;&amp; !collisions[1]) {</span>
+<span class="nc" id="L229">                return EnemyMoveDirection.DOWN;</span>
+            }
+        } else {
+            // prefer vertical
+<span class="pc bpc" id="L233" title="1 of 4 branches missed.">            if (diffY &gt; 0 &amp;&amp; !collisions[0]) {</span>
+<span class="fc" id="L234">                return EnemyMoveDirection.UP;</span>
+<span class="pc bpc" id="L235" title="2 of 4 branches missed.">            } else if (diffY &lt; 0 &amp;&amp; !collisions[1]) {</span>
+<span class="fc" id="L236">                return EnemyMoveDirection.DOWN;</span>
+<span class="nc bnc" id="L237" title="All 4 branches missed.">            } else if (diffX &gt; 0 &amp;&amp; !collisions[3]) {</span>
+<span class="nc" id="L238">                return EnemyMoveDirection.RIGHT;</span>
+<span class="nc bnc" id="L239" title="All 4 branches missed.">            } else if (diffX &lt; 0 &amp;&amp; !collisions[2]) {</span>
+<span class="nc" id="L240">                return EnemyMoveDirection.LEFT;</span>
+            }
+        }
+<span class="nc" id="L243">        return EnemyMoveDirection.STATIONARY;</span>
+    }
+
+    /**
+     * Mutate enemy position by applying the given move.
+     */
+    private void applyMove(Enemy enemy, EnemyMoveDirection move, float deltaTime, float speed) {
+<span class="fc" id="L250">        float enemyX = enemy.getEnemyX();</span>
+<span class="fc" id="L251">        float enemyY = enemy.getEnemyY();</span>
+<span class="pc bpc" id="L252" title="1 of 5 branches missed.">        switch (move) {</span>
+            case RIGHT:
+<span class="fc" id="L254">                enemy.setEnemyX(enemyX + speed * deltaTime);</span>
+<span class="fc" id="L255">                break;</span>
+            case LEFT:
+<span class="fc" id="L257">                enemy.setEnemyX(enemyX - speed * deltaTime);</span>
+<span class="fc" id="L258">                break;</span>
+            case UP:
+<span class="fc" id="L260">                enemy.setEnemyY(enemyY + speed * deltaTime);</span>
+<span class="fc" id="L261">                break;</span>
+            case DOWN:
+<span class="fc" id="L263">                enemy.setEnemyY(enemyY - speed * deltaTime);</span>
+<span class="fc" id="L264">                break;</span>
+            case STATIONARY:
+            default:
+                break;
+        }
+<span class="fc" id="L269">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
